@@ -5,4 +5,4 @@ plugins {
 
 rootProject.name = 'advent-of-code-2024'
 
-include 'solution'
+include 'solution', 'downloader'

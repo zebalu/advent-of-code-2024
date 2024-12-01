@@ -33,7 +33,7 @@ public class Day01 extends AbstractDay {
     }
 
     @Override
-    String part1() {
+    public String part1() {
         long sum = 0L;
         for (int i = 0; i < list1.length; i++) {
             sum += Math.abs(list1[i] - list2[i]);
@@ -42,7 +42,7 @@ public class Day01 extends AbstractDay {
     }
 
     @Override
-    String part2() {
+    public String part2() {
         long sum = 0L;
         int i = 0;
         int j = 0;

@@ -1,3 +1,7 @@
+plugins {
+    id 'application'
+}
+
 allprojects {
     apply(plugin: 'java')
 
@@ -16,8 +20,13 @@ repositories {
     mavenCentral()
 }
 
+application {
+    mainClass = 'io.github.zebalu.aoc2024.main.AdventOfCode2024'
+}
+
 dependencies {
-    implementation project(':solution')
+    implementation project (':solution')
+    implementation project (':downloader')
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
 }
