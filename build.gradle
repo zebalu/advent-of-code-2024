@@ -1,0 +1,29 @@
+plugins {
+    id 'java'
+}
+
+group = 'io.gizhub.zebalu.aoc2024'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':solution')
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+allprojects {
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(23)
+            vendor = JvmVendorSpec.BELLSOFT
+        }
+    }
+}
