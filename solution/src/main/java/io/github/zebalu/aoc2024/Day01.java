@@ -50,12 +50,12 @@ public class Day01 extends AbstractDay {
             if (list1[i] == list2[j]) {
                 int num = list1[i];
                 int count1 = 0;
-                while (list1[i] == num) {
+                while (list1[i] == num && i < list1.length) {
                     ++count1;
                     ++i;
                 }
                 int count2 = 0;
-                while (list2[j] == num) {
+                while (list2[j] == num && j < list2.length) {
                     ++count2;
                     ++j;
                 }
