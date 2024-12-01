@@ -1,5 +1,12 @@
-plugins {
-    id 'java'
+allprojects {
+    apply(plugin: 'java')
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(23)
+            vendor = JvmVendorSpec.BELLSOFT
+        }
+    }
 }
 
 group = 'io.gizhub.zebalu.aoc2024'
@@ -19,11 +26,3 @@ test {
     useJUnitPlatform()
 }
 
-allprojects {
-    java {
-        toolchain {
-            languageVersion = JavaLanguageVersion.of(23)
-            vendor = JvmVendorSpec.BELLSOFT
-        }
-    }
-}
