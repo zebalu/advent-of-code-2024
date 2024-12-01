@@ -34,7 +34,7 @@ for me... :(
 
 ### Stretch Goals
 
-* solve every __day__ under 1 seconds (so parsing and part1+part2 is less than 1 second all together)
+* solve __every *day*__ under 1 seconds (so parsing and part1+part2 is less than 1 second all together)
 * solve __all day__ under 10 seconds (including parsing and JVM start)
 
 ## License
