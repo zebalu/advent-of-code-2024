@@ -29,15 +29,19 @@ public class Downloader {
                 .filter(i -> Instant.parse(String.format("%d-12-%02dT05:00:00Z", year, i)).isBefore(Instant.now()))
                 .forEach(i -> {
                     try {
-                        System.out.println("Downloading Day " + i);
-                        var httpRequest = HttpRequest.newBuilder().GET()
-                                .uri(new URI(String.format("https://adventofcode.com/%d/day/", year) + i + "/input")).build();
-                        var data = httpClient.send(httpRequest, BodyHandlers.ofString()).body();
                         var target = new File(String.format("input-%02d.txt", i));
-                        try (var pw = new PrintWriter(target)) {
-                            pw.print(data);
+                        if(!target.exists()) {
+                            System.out.println("Downloading Day " + i);
+                            var httpRequest = HttpRequest.newBuilder().GET()
+                                    .uri(new URI(String.format("https://adventofcode.com/%d/day/", year) + i + "/input")).build();
+                            var data = httpClient.send(httpRequest, BodyHandlers.ofString()).body();
+                            try (var pw = new PrintWriter(target)) {
+                                pw.print(data);
+                            }
+                            System.out.println("Saved: " + target.getAbsolutePath());
+                        } else {
+                            System.out.println("Input: "+target.getAbsolutePath()+" already exists.");
                         }
-                        System.out.println("Saved: "+target.getAbsolutePath());
                     } catch (IOException | InterruptedException | URISyntaxException e) {
                         throw new IllegalStateException("Could not download input: " + i, e);
                     }
