@@ -47,7 +47,7 @@ public class Day03 extends AbstractDay {
     }
 
     private record Pair(int a, int b) {
-        private static final Pattern NUMBER_PATTERN = Pattern.compile("mul\\((\\d{1,3}),(\\d{1,3})\\)");
+        private static final Pattern NUMBER_PATTERN = Pattern.compile("(\\d{1,3}),(\\d{1,3})");
 
         long mul() {
             return a * b;
