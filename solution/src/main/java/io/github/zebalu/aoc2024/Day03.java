@@ -8,8 +8,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Day03 extends AbstractDay {
-    private final Pattern SIMPLE_MUL_PATTERN = Pattern.compile("(mul\\(\\d{1,3},\\d{1,3}\\))");
     private final Pattern COMPLEX_MUL_PATTERN = Pattern.compile("(do\\(\\)|mul\\(\\d{1,3},\\d{1,3}\\)|don't\\(\\))");
+
+    private final List<Instruction> instructions = new ArrayList<>();
 
     public Day03() {
         this(IOUtil.readInput(3));
@@ -17,49 +18,95 @@ public class Day03 extends AbstractDay {
 
     public Day03(String input) {
         super(input, "Mull It Over", 3);
+        Matcher matcher = COMPLEX_MUL_PATTERN.matcher(INPUT);
+        while (matcher.find()) {
+            instructions.add(Instruction.fromString(matcher.group(1)));
+        }
     }
 
     @Override
     public String part1() {
-        return Long.toString(collectByPattern(SIMPLE_MUL_PATTERN).stream().mapToLong(Pair::mul).sum());
+        return Integer.toString(calculate(false));
     }
 
     @Override
     public String part2() {
-        return Long.toString(collectByPattern(COMPLEX_MUL_PATTERN).stream().mapToLong(Pair::mul).sum());
+        return Integer.toString(calculate(true));
     }
 
-    private List<Pair> collectByPattern(Pattern pattern) {
-        Matcher matcher = pattern.matcher(INPUT);
-        boolean doAdd = true;
-        List<Pair> pairs = new ArrayList<>();
-        while (matcher.find()) {
-            String grp = matcher.group();
-            if (grp.equals("do()")) {
-                doAdd = true;
-            } else if (grp.equals("don't()")) {
-                doAdd = false;
-            } else if (doAdd) {
-                pairs.add(Pair.from(grp));
+    private int calculate(boolean processDosAndDonts) {
+        int result = 0;
+        boolean shouldInclude = true;
+        for(Instruction instruction : instructions) {
+            if(!instruction.isCalculatable()) {
+                if(processDosAndDonts) {
+                    if (instruction.isInclusive()) {
+                        shouldInclude = true;
+                    } else {
+                        shouldInclude = false;
+                    }
+                }
+            } else if (shouldInclude) {
+                result += instruction.calc();
             }
         }
-        return pairs;
+        return result;
     }
 
-    private record Pair(int a, int b) {
-        private static final Pattern NUMBER_PATTERN = Pattern.compile("(\\d{1,3}),(\\d{1,3})");
-
-        long mul() {
-            return a * b;
+    private static abstract sealed class Instruction permits MulInstruction, DoInstruction, DontInstruction {
+        boolean isCalculatable() {
+            return switch (this) {
+                case MulInstruction mi -> true;
+                default -> false;
+            };
         }
 
-        static Pair from(String mulString) {
+        boolean isInclusive() {
+            return switch (this) {
+                case DoInstruction mi -> true;
+                case DontInstruction mi -> false;
+                case MulInstruction mi -> throw new IllegalStateException();
+            };
+        }
+
+        int calc() {
+            return switch (this) {
+                case MulInstruction mi -> mi.a*mi.b;
+                default -> throw new IllegalStateException();
+            };
+        }
+
+        static Instruction fromString(String string) {
+            return switch (string) {
+                case "do()" -> new DoInstruction();
+                case "don't()" -> new DontInstruction();
+                default -> new MulInstruction(string);
+            };
+        }
+
+    }
+
+    private static final class MulInstruction extends Instruction {
+        private static final Pattern NUMBER_PATTERN = Pattern.compile("(\\d{1,3}),(\\d{1,3})");
+        private final int a;
+        private final int b;
+        MulInstruction(String mulString) {
             Matcher numMatcher = NUMBER_PATTERN.matcher(mulString);
             if (numMatcher.find()) {
-                return new Pair(Integer.parseInt(numMatcher.group(1)), Integer.parseInt(numMatcher.group(2)));
+                a = Integer.parseInt(numMatcher.group(1));
+                b = Integer.parseInt(numMatcher.group(2));
+            } else {
+                throw new IllegalArgumentException("Invalid mul string: " + mulString);
             }
-            throw new IllegalArgumentException("Invalid mul string: " + mulString);
         }
+    }
+
+    private static final class DoInstruction extends Instruction {
+
+    }
+
+    private static final class DontInstruction extends Instruction {
+
     }
 
     public static void main(String[] args) {
