@@ -2,6 +2,7 @@ package io.github.zebalu.aoc2024.main;
 
 import io.github.zebalu.aoc2024.Day01;
 import io.github.zebalu.aoc2024.Day02;
+import io.github.zebalu.aoc2024.Day03;
 import io.github.zebalu.aoc2024.helper.Downloader;
 
 import java.time.Duration;
@@ -15,7 +16,7 @@ public class AdventOfCode2024 {
         if(isDownloadRequested(args)) {
             downloadInputs();
         }
-        var days = List.of(/*new Day01() ,*/ new Day02());
+        var days = List.of(/*new Day01() , new Day02(),*/ new Day03());
         days.forEach(d->{
             System.out.println(d.getFormattedTitle(80));
             Instant start = Instant.now();
