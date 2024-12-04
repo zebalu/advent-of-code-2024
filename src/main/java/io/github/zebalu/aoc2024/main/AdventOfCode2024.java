@@ -5,6 +5,7 @@ import io.github.zebalu.aoc2024.helper.Downloader;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -19,29 +20,38 @@ public class AdventOfCode2024 {
             downloadInputs();
         }
         List<Supplier<Day>> days = List.of(Day01::new, Day02::new, Day03::new, Day04::new);
+        String bigTitle = "Advent of Code 2024";
+        System.out.println();
+        int spacesNeeded = (PRINT_WIDTH + bigTitle.length())/2;
+        System.out.println(String.format("%"+spacesNeeded+"s", bigTitle));
+        System.out.println();
         StringBuilder endSeparator = new StringBuilder();
         endSeparator.repeat("*", PRINT_WIDTH);
+        List<Duration> durations = new ArrayList<>();
         Instant bigStart = Instant.now();
         days.forEach(daySupplier->{
             Instant start = Instant.now();
             Day d = daySupplier.get();
-            System.out.println(getTitle(d, PRINT_WIDTH));
+            System.out.println(getTitle(d));
             System.out.println(d.part1());
             Instant part1 = Instant.now();
             System.out.println(d.part2());
             Instant end = Instant.now();
-            System.out.println("part1: "+ Duration.between(start, part1).toMillis());
-            System.out.println("part2: "+ Duration.between(part1, end).toMillis());
-            System.out.println(" time: "+ Duration.between(start, end).toMillis());
+            durations.add(Duration.between(start, end));
+            System.out.println("  part 1 time: "+ Duration.between(start, part1).toMillis());
+            System.out.println("  part 2 time: "+ Duration.between(part1, end).toMillis());
+            System.out.println("full day time: "+ Duration.between(start, end).toMillis());
             System.out.println(endSeparator.toString());
         });
         Instant bigEnd = Instant.now();
-        System.out.println("Full time: "+Duration.between(bigStart, bigEnd).toMillis());
+        System.out.println("Full execution time: "+Duration.between(bigStart, bigEnd).toMillis());
+        System.out.println("   Sum of all times: "+durations.stream().reduce(Duration.ZERO, Duration::plus).toMillis());
+
     }
 
-    private static String getTitle(Day day, int width) {
+    private static String getTitle(Day day) {
         return switch (day) {
-            case PrettyPrintable pp -> pp.getFormattedTitle(width);
+            case PrettyPrintable pp -> pp.getFormattedTitle(PRINT_WIDTH);
             default -> day.toString();
         };
     }
