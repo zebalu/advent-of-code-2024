@@ -1,8 +1,6 @@
 package io.github.zebalu.aoc2024.main;
 
-import io.github.zebalu.aoc2024.Day01;
-import io.github.zebalu.aoc2024.Day02;
-import io.github.zebalu.aoc2024.Day03;
+import io.github.zebalu.aoc2024.*;
 import io.github.zebalu.aoc2024.helper.Downloader;
 
 import java.time.Duration;
@@ -10,21 +8,42 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 public class AdventOfCode2024 {
+
+    private static final int PRINT_WIDTH = 80;
+
     public static void main(String[] args) {
         if(isDownloadRequested(args)) {
             downloadInputs();
         }
-        var days = List.of(/*new Day01() , new Day02(),*/ new Day03());
-        days.forEach(d->{
-            System.out.println(d.getFormattedTitle(80));
+        List<Supplier<Day>> days = List.of(Day01::new, Day02::new, Day03::new, Day04::new);
+        StringBuilder endSeparator = new StringBuilder();
+        endSeparator.repeat("*", PRINT_WIDTH);
+        Instant bigStart = Instant.now();
+        days.forEach(daySupplier->{
             Instant start = Instant.now();
+            Day d = daySupplier.get();
+            System.out.println(getTitle(d, PRINT_WIDTH));
             System.out.println(d.part1());
+            Instant part1 = Instant.now();
             System.out.println(d.part2());
             Instant end = Instant.now();
-            System.out.println("time: "+ Duration.between(start, end).toMillis());
+            System.out.println("part1: "+ Duration.between(start, part1).toMillis());
+            System.out.println("part2: "+ Duration.between(part1, end).toMillis());
+            System.out.println(" time: "+ Duration.between(start, end).toMillis());
+            System.out.println(endSeparator.toString());
         });
+        Instant bigEnd = Instant.now();
+        System.out.println("Full time: "+Duration.between(bigStart, bigEnd).toMillis());
+    }
+
+    private static String getTitle(Day day, int width) {
+        return switch (day) {
+            case PrettyPrintable pp -> pp.getFormattedTitle(width);
+            default -> day.toString();
+        };
     }
 
     private static boolean isDownloadRequested(String[] args) {

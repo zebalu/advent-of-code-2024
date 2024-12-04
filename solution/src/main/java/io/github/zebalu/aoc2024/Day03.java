@@ -53,23 +53,23 @@ public class Day03 extends AbstractDay {
         return result;
     }
 
-    private static abstract sealed class Instruction permits MulInstruction, DoInstruction, DontInstruction {
-        boolean isCalculatable() {
+    private sealed interface Instruction permits MulInstruction, DoInstruction, DontInstruction {
+        default boolean isCalculatable() {
             return switch (this) {
-                case MulInstruction mi -> true;
+                case MulInstruction _ -> true;
                 default -> false;
             };
         }
 
-        boolean isInclusive() {
+        default boolean isInclusive() {
             return switch (this) {
-                case DoInstruction mi -> true;
-                case DontInstruction mi -> false;
-                case MulInstruction mi -> throw new IllegalStateException();
+                case DoInstruction _ -> true;
+                case DontInstruction _ -> false;
+                case MulInstruction _ -> throw new IllegalStateException();
             };
         }
 
-        int calc() {
+        default int calc() {
             return switch (this) {
                 case MulInstruction mi -> mi.a*mi.b;
                 default -> throw new IllegalStateException();
@@ -86,7 +86,7 @@ public class Day03 extends AbstractDay {
 
     }
 
-    private static final class MulInstruction extends Instruction {
+    private static final class MulInstruction implements Instruction {
         private static final Pattern NUMBER_PATTERN = Pattern.compile("(\\d{1,3}),(\\d{1,3})");
         private final int a;
         private final int b;
@@ -101,11 +101,11 @@ public class Day03 extends AbstractDay {
         }
     }
 
-    private static final class DoInstruction extends Instruction {
+    private static final class DoInstruction implements Instruction {
 
     }
 
-    private static final class DontInstruction extends Instruction {
+    private static final class DontInstruction implements Instruction {
 
     }
 

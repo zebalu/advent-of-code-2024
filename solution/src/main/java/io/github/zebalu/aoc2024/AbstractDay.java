@@ -16,7 +16,7 @@ package io.github.zebalu.aoc2024;
 
 import io.github.zebalu.aoc2024.utils.IOUtil;
 
-abstract class AbstractDay implements Day {
+abstract class AbstractDay implements Day, PrettyPrintable {
     protected final String INPUT;
     protected final String TITLE;
     protected final int dayNumber;
@@ -29,8 +29,9 @@ abstract class AbstractDay implements Day {
         this.dayNumber = dayNumber;
     }
 
+    @Override
     public String getFormattedTitle(int size) {
-        int sideLength = (size - TITLE.length() - 2) / 2;
+        int sideLength = (size - TITLE.length() - 2 - "Day 00: ".length()) / 2;
         StringBuilder sb = new StringBuilder();
         boolean isOdd = sb.length() % 2 == 1;
         int dashLength = sideLength/2;
@@ -38,6 +39,9 @@ abstract class AbstractDay implements Day {
         sb.repeat('-', dashLength);
         sb.repeat('=', equalsLength);
         sb.append(' ');
+        sb.append("Day ");
+        sb.append(String.format("%02d", dayNumber));
+        sb.append(": ");
         sb.append(TITLE);
         sb.append(' ');
         sb.repeat('=', equalsLength);
