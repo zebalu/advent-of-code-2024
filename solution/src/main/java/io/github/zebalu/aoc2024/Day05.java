@@ -32,26 +32,26 @@ public class Day05 extends AbstractDay {
 
     }
 
+    @Override
+    public String part2() {
+        var invalids = printQueues.stream().filter(q->!isValid(q)).map(ArrayList::new).toList();
+        invalids.forEach(this::fixInvalid);
+        return Integer.toString(invalids.stream().mapToInt(q->q.get(q.size()/2)).sum());
+    }
+
     private boolean isValid(List<Integer> printQueue) {
         for (Rule rule : rules) {
             int fIdx = printQueue.indexOf(rule.first);
             int sIdx = printQueue.indexOf(rule.second);
-            if (bothValid(fIdx, sIdx) && sIdx < fIdx) {
+            if (bothIndicesAreValid(fIdx, sIdx) && sIdx < fIdx) {
                 return false;
             }
         }
         return true;
     }
 
-    private boolean bothValid(int idx1, int idx2) {
+    private boolean bothIndicesAreValid(int idx1, int idx2) {
         return 0 <= idx1 && 0 <= idx2;
-    }
-
-    @Override
-    public String part2() {
-        var invalids = printQueues.stream().filter(q->!isValid(q)).map(ArrayList::new).toList();
-        invalids.forEach(this::fixInvalid);
-        return Integer.toString(invalids.stream().mapToInt(q->q.get(q.size()/2)).sum());
     }
 
     private void fixInvalid(List<Integer> printQueue) {
@@ -60,7 +60,7 @@ public class Day05 extends AbstractDay {
             Rule rule = rules.get(i);
             int fIdx = printQueue.indexOf(rule.first);
             int sIdx = printQueue.indexOf(rule.second);
-            if (bothValid(fIdx, sIdx) && sIdx < fIdx) {
+            if (bothIndicesAreValid(fIdx, sIdx) && sIdx < fIdx) {
                 swap(printQueue, fIdx, sIdx);
                 i = 0;
             } else {
