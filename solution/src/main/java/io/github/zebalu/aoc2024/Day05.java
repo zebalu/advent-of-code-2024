@@ -3,25 +3,21 @@ package io.github.zebalu.aoc2024;
 import java.util.*;
 
 public class Day05 extends AbstractDay {
-    private final List<Rule> rules;
-    private final List<PrintQueue> printQueues;
+    private final List<Rule> rules = new ArrayList<>();
+    private final List<PrintQueue> printQueues = new ArrayList<>();
     public Day05() {
         super("Print Queue", 5);
-        List<String> ruleLines = new ArrayList<>();
-        List<String> queueLines = new ArrayList<>();
         boolean splitFound = false;
         var allLines = INPUT.lines().toList();
         for (var line : allLines) {
             if(line.isBlank()) {
                 splitFound = true;
             } else if(splitFound) {
-                queueLines.add(line);
+                printQueues.add(PrintQueue.from(line));
             } else {
-                ruleLines.add(line);
+                rules.add(Rule.from(line));
             }
         }
-        rules = ruleLines.stream().map(Rule::from).toList();
-        printQueues = queueLines.stream().map(l->l.split(",")).map(ss->Arrays.stream(ss).map(Integer::parseInt).toList()).map(PrintQueue::new).toList();
     }
 
     @Override
@@ -62,11 +58,9 @@ public class Day05 extends AbstractDay {
 
     private static class PrintQueue {
         private static final Comparator<Map.Entry<Integer, Integer>> ORDER_COMPARATOR = Comparator.comparingInt(Map.Entry::getValue);
-        private final Map<Integer, Integer> pageToOrder = new HashMap<>();
-        public PrintQueue(List<Integer> printOrder) {
-            for(int i = 0; i < printOrder.size(); i++) {
-                pageToOrder.put(printOrder.get(i), i);
-            }
+        private final Map<Integer, Integer> pageToOrder;
+        public PrintQueue(Map<Integer, Integer> pageToOrder) {
+            this.pageToOrder = pageToOrder;
         }
         boolean matches(Rule rule) {
             if(pageToOrder.containsKey(rule.first) && pageToOrder.containsKey(rule.second)) {
@@ -81,6 +75,14 @@ public class Day05 extends AbstractDay {
         }
         int getMiddleValue() {
             return pageToOrder.entrySet().stream().sorted(ORDER_COMPARATOR).skip(pageToOrder.size() / 2).limit(1).findFirst().map(Map.Entry::getKey).orElseThrow();
+        }
+        static PrintQueue from(String queueDesc) {
+            Map<Integer, Integer> pageToOrder = new HashMap<>();
+            int order = 0;
+            for(String s: queueDesc.split(",")) {
+                pageToOrder.put(Integer.parseInt(s), order++);
+            }
+            return new PrintQueue(pageToOrder);
         }
     }
 
