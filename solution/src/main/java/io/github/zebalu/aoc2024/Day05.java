@@ -1,6 +1,7 @@
 package io.github.zebalu.aoc2024;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Day05 extends AbstractDay {
     private final List<Rule> rules = new ArrayList<>();
@@ -37,9 +38,10 @@ public class Day05 extends AbstractDay {
     }
 
     private void fixInvalid(PrintQueue printQueue) {
+        List<Rule> applicableRules = rules.stream().filter(printQueue::isApplicable).toList();
         int i = 0;
-        while (i < rules.size()) {
-            Rule rule = rules.get(i);
+        while (i < applicableRules.size()) {
+            Rule rule = applicableRules.get(i);
             if (!printQueue.matches(rule)) {
                 printQueue.fixFor(rule);
                 i = 0;
@@ -75,6 +77,9 @@ public class Day05 extends AbstractDay {
         }
         int getMiddleValue() {
             return pageToOrder.entrySet().stream().sorted(ORDER_COMPARATOR).skip(pageToOrder.size() / 2).limit(1).findFirst().map(Map.Entry::getKey).orElseThrow();
+        }
+        boolean isApplicable(Rule rule) {
+            return pageToOrder.containsKey(rule.first()) && pageToOrder.containsKey(rule.second());
         }
         static PrintQueue from(String queueDesc) {
             Map<Integer, Integer> pageToOrder = new HashMap<>();
