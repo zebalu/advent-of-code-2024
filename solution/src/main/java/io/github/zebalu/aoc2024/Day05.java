@@ -36,11 +36,15 @@ public class Day05 extends AbstractDay {
         for (Rule rule : rules) {
             int fIdx = printQueue.indexOf(rule.first);
             int sIdx = printQueue.indexOf(rule.second);
-            if (0 <= fIdx && 0 <= sIdx && sIdx < fIdx) {
+            if (bothValid(fIdx, sIdx) && sIdx < fIdx) {
                 return false;
             }
         }
         return true;
+    }
+
+    private boolean bothValid(int idx1, int idx2) {
+        return 0 <= idx1 && 0 <= idx2;
     }
 
     @Override
@@ -56,7 +60,7 @@ public class Day05 extends AbstractDay {
             Rule rule = rules.get(i);
             int fIdx = printQueue.indexOf(rule.first);
             int sIdx = printQueue.indexOf(rule.second);
-            if (0 <= fIdx && 0 <= sIdx && sIdx < fIdx) {
+            if (bothValid(fIdx, sIdx) && sIdx < fIdx) {
                 swap(printQueue, fIdx, sIdx);
                 i = 0;
             } else {
