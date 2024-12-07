@@ -19,7 +19,7 @@ public class AdventOfCode2024 {
         if(isDownloadRequested(args)) {
             downloadInputs();
         }
-        List<Supplier<Day>> days = List.of(Day01::new, Day02::new, Day03::new, Day04::new, Day05::new, Day06::new);
+        List<Supplier<Day>> days = List.of(Day01::new, Day02::new, Day03::new, Day04::new, Day05::new, Day06::new, Day07::new);
         String bigTitle = "Advent of Code 2024";
         System.out.println();
         int spacesNeeded = (PRINT_WIDTH + bigTitle.length())/2;
