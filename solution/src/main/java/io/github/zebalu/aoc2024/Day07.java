@@ -9,9 +9,11 @@ import java.util.Queue;
 
 public class Day07 extends AbstractDay {
     private final List<Calibration> calibrations;
+
     public Day07() {
         this(IOUtil.readInput(7));
     }
+
     public Day07(String input) {
         super(input, "Bridge Repair", 7);
         var lines = INPUT.lines().toList();
@@ -32,7 +34,7 @@ public class Day07 extends AbstractDay {
         return Long.toString(res);
     }
 
-    private record Calibration (long testValue, List<Long> parts) {
+    private record Calibration(long testValue, List<Long> parts) {
         static Calibration from(String line) {
             String[] parting1 = line.split(": ");
             long testValue = Long.parseLong(parting1[0]);
@@ -47,32 +49,34 @@ public class Day07 extends AbstractDay {
 
     private static class Validator {
         private final boolean canConcatenate;
+
         public Validator(boolean canConcatenate) {
             this.canConcatenate = canConcatenate;
         }
+
         public boolean isValid(Calibration calibration) {
-            if(calibration.parts.isEmpty()) {
+            if (calibration.parts.isEmpty()) {
                 return calibration.testValue == 0;
             }
             Queue<Long> toConsume = new ArrayDeque<>(calibration.parts.reversed());
-            List<Long>  current = new ArrayList<>();
+            List<Long> current = new ArrayList<>();
             current.add(calibration.testValue);
-            while (!toConsume.isEmpty() && !current.isEmpty()){
+            while (!toConsume.isEmpty() && !current.isEmpty()) {
                 long num = toConsume.poll();
                 List<Long> next = new ArrayList<>();
-                for(var v : current){
-                    if(v == num && toConsume.isEmpty()) {
+                for (var v : current) {
+                    if (v == num && toConsume.isEmpty()) {
                         return true;
                     }
-                    if(v > num) {
+                    if (v > num) {
                         long changed = v - num;
                         next.add(changed);
                     }
-                    if(v%num==0) {
+                    if (v % num == 0) {
                         long changed = v / num;
                         next.add(changed);
                     }
-                    if(canConcatenate) {
+                    if (canConcatenate) {
                         long retracted = retract(v, num);
                         if (retract(v, num) != v) {
                             next.add(retracted);
@@ -83,13 +87,14 @@ public class Day07 extends AbstractDay {
             }
             return false;
         }
+
         private long retract(long left, long right) {
-            if(left == right) {
+            if (left == right) {
                 return 0;
             }
             String leftStr = Long.toString(left);
             String rightStr = Long.toString(right);
-            if(leftStr.endsWith(rightStr)) {
+            if (leftStr.endsWith(rightStr)) {
                 return Long.parseLong(leftStr.substring(0, leftStr.length() - rightStr.length()));
             }
             return left;
