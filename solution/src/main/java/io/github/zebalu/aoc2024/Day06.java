@@ -2,9 +2,7 @@ package io.github.zebalu.aoc2024;
 
 import io.github.zebalu.aoc2024.utils.IOUtil;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Day06 extends AbstractDay {
@@ -37,7 +35,7 @@ public class Day06 extends AbstractDay {
 
     @Override
     public String part1() {
-        return Integer.toString(isLooping(null, false).count);
+        return Integer.toString(isLooping(null, new PositionDirection(guardStartPosition, new Coord(0, -1)), false).count);
     }
 
     private boolean isValid(Coord coord) {
@@ -46,31 +44,29 @@ public class Day06 extends AbstractDay {
 
     @Override
     public String part2() {
-        var stepsLog = isLooping(null, false);
-        var validCoords = stepsLog.log.stream().map(s->s.position).collect(Collectors.toSet());
-        int count = 0;
-        for(Coord option: validCoords) {
-            if(!guardStartPosition.equals(option) && isLooping(option, true).looping) {
-                ++count;
-            }
+        var stepsLog = isLooping(null, new PositionDirection(guardStartPosition, new Coord(0, -1)), false);
+        SequencedMap<Coord, PositionDirection> firstArrives = new LinkedHashMap<>();
+        for(PositionDirection pd: stepsLog.log()) {
+            firstArrives.putIfAbsent(pd.position, pd);
         }
-        return Integer.toString(count);
+        long count = firstArrives.keySet().stream()
+                .filter(option -> !guardStartPosition.equals(option) && isLooping(option, firstArrives.get(option).prev(), true).looping)
+                .count();
+        return Long.toString(count);
     }
 
-    private StepsLog isLooping(Coord newObstacle, boolean excludeInnerSteps) {
-        PositionDirection current = new PositionDirection(guardStartPosition, new Coord(0, -1));
-        Set<PositionDirection> visited = new HashSet<>();
-        boolean hasTurned = false;
+    private StepsLog isLooping(Coord newObstacle, PositionDirection start, boolean excludeInnerSteps) {
+        PositionDirection current = start;
+        SequencedSet<PositionDirection> visited = new LinkedHashSet<>();
         while (isValid(current.position) && !visited.contains(current)) {
             Coord nextGuard = current.position.add(current.facing);
             if(obstacles.contains(nextGuard) || nextGuard.equals(newObstacle)) {
+                visited.add(current);
                 current = new PositionDirection(current.position, current.facing.turnRight());
-                hasTurned = true;
             } else {
-                if(!excludeInnerSteps || hasTurned) {
+                if(!excludeInnerSteps) {
                     visited.add(current);
                 }
-                hasTurned = false;
                 current = new PositionDirection(nextGuard, current.facing);
             }
         }
@@ -84,10 +80,17 @@ public class Day06 extends AbstractDay {
         public Coord add(Coord other) {
             return new Coord(other.x + x, other.y + y);
         }
+        public Coord minus(Coord other) {
+            return new Coord(x-other.x, y-other.y);
+        }
     }
 
-    private record PositionDirection(Coord position, Coord facing) {    }
-    private record StepsLog(Set<PositionDirection> log, int count, boolean looping) {}
+    private record PositionDirection(Coord position, Coord facing) {
+        PositionDirection prev() {
+            return new PositionDirection(position.minus(facing), facing);
+        }
+    }
+    private record StepsLog(SequencedSet<PositionDirection> log, int count, boolean looping) {}
 
     public static void main(String[] args) {
         String input = IOUtil.readInput(6);
