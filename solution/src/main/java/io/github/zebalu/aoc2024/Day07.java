@@ -2,10 +2,7 @@ package io.github.zebalu.aoc2024;
 
 import io.github.zebalu.aoc2024.utils.IOUtil;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 public class Day07 extends AbstractDay {
     private final List<Calibration> calibrations;
@@ -59,11 +56,11 @@ public class Day07 extends AbstractDay {
                 return calibration.testValue == 0;
             }
             Queue<Long> toConsume = new ArrayDeque<>(calibration.parts.reversed());
-            List<Long> current = new ArrayList<>();
+            Set<Long> current = new HashSet<>();
             current.add(calibration.testValue);
             while (!toConsume.isEmpty() && !current.isEmpty()) {
                 long num = toConsume.poll();
-                List<Long> next = new ArrayList<>();
+                Set<Long> next = new HashSet<>();
                 for (var v : current) {
                     if (v == num && toConsume.isEmpty()) {
                         return true;
