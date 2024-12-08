@@ -35,7 +35,7 @@ public class Day08 extends AbstractDay {
 
     @Override
     public String part1() {
-        return Integer.toString(countByTactic(this::collectCloseAntinodesFor));
+        return Integer.toString(countByTactic(this::collectCloseAntinodes));
     }
 
     @Override
@@ -50,7 +50,7 @@ public class Day08 extends AbstractDay {
         return antinodes.size();
     }
 
-    private Set<Coord> collectCloseAntinodesFor(List<Coord> coords) {
+    private Set<Coord> collectCloseAntinodes(List<Coord> coords) {
         Set<Coord> collector = new HashSet<>();
         for (int i = 0; i < coords.size(); i++) {
             for (int j = i + 1; j < coords.size(); j++) {
