@@ -3,56 +3,54 @@ package io.github.zebalu.aoc2024;
 import io.github.zebalu.aoc2024.utils.IOUtil;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Day08 extends AbstractDay {
     private final Map<Character, List<Coord>> antennaMap = new HashMap<>();
     private final int height;
     private final int width;
+
     public Day08() {
         this(IOUtil.readInput(8));
     }
+
     public Day08(String input) {
         super(input, "Resonant Collinearity", 8);
         var lines = INPUT.lines().toList();
         height = lines.size();
         width = lines.getFirst().length();
-        for(int y=0; y<height; y++) {
+        for (int y = 0; y < height; y++) {
             String line = lines.get(y);
-            for(int x=0; x<width; x++) {
+            for (int x = 0; x < width; x++) {
                 char c = line.charAt(x);
-                if(c !='.') {
-                    Coord coord = new Coord(x,y);
+                if (c != '.') {
+                    Coord coord = new Coord(x, y);
                     antennaMap.computeIfAbsent(c, _ -> new ArrayList<>()).add(coord);
                 }
             }
         }
     }
+
     @Override
     public String part1() {
-        Set<Coord> antinodes = new HashSet<>();
-        for(var v: antennaMap.values()) {
-            antinodes.addAll(collectCloseAntinodesFor(v));
-        }
+        Set<Coord> antinodes = antennaMap.values().stream()
+                .flatMap(v->collectCloseAntinodesFor(v).stream())
+                .collect(Collectors.toSet());
         return Integer.toString(antinodes.size());
     }
 
     private Set<Coord> collectCloseAntinodesFor(List<Coord> coords) {
-        Set<Coord> forbidden = new HashSet<>(coords);
         Set<Coord> collector = new HashSet<>();
-        for(int i=0; i<coords.size(); i++) {
-            for(int j=i+1; j<coords.size(); j++) {
+        for (int i = 0; i < coords.size(); i++) {
+            for (int j = i + 1; j < coords.size(); j++) {
                 Coord c1 = coords.get(i);
                 Coord c2 = coords.get(j);
-                var options = List.of(
-                c1.add(c2.minus(c1)),
-                c1.add(c1.minus(c2)),
-                c2.add(c1.minus(c2)),
-                c2.add(c2.minus(c1)));
-                for(Coord o : options) {
-                    if(!forbidden.contains(o) && isValid(o)) {
-                        collector.add(o);
-                    }
-                }
+                var diff = c1.minus(c2);
+                Stream.of(c1.add(diff), c2.minus(diff))
+                        .filter(this::isValid)
+                        .forEach(collector::add);
             }
         }
         return collector;
@@ -60,26 +58,20 @@ public class Day08 extends AbstractDay {
 
     private Set<Coord> collectAllAntinodes(List<Coord> coords) {
         Set<Coord> collector = new HashSet<>();
-        for(int i=0; i<coords.size(); i++) {
-            for(int j=i+1; j<coords.size(); j++) {
+        for (int i = 0; i < coords.size(); i++) {
+            for (int j = i + 1; j < coords.size(); j++) {
                 Coord c1 = coords.get(i);
                 Coord c2 = coords.get(j);
-                var coll = new HashSet<Coord>();
-                Coord dif = c2.minus(c1);
-                var next = c1;
-                while (isValid(next)) {
-                    coll.add(next);
-                    next = next.add(dif);
-                }
-                next = c1;
-                while (isValid(next)) {
-                    coll.add(next);
-                    next = next.minus(dif);
-                }
-                collector.addAll(coll);
+                Coord diff = c2.minus(c1);
+                collectFrom(c1, collector, c->c.add(diff));
+                collectFrom(c2, collector, c->c.minus(diff));
             }
         }
         return collector;
+    }
+
+    private void collectFrom(Coord origin, Set<Coord> collector, Function<Coord, Coord> next) {
+        Stream.iterate(origin, this::isValid, next::apply).forEach(collector::add);
     }
 
     private boolean isValid(Coord c) {
@@ -88,19 +80,19 @@ public class Day08 extends AbstractDay {
 
     @Override
     public String part2() {
-        Set<Coord> antinodes = new HashSet<>();
-        for(var v: antennaMap.values()) {
-            antinodes.addAll(collectAllAntinodes(v));
-        }
+        Set<Coord> antinodes = antennaMap.values().stream()
+                .flatMap(v->collectAllAntinodes(v).stream())
+                .collect(Collectors.toSet());
         return Integer.toString(antinodes.size());
     }
 
     private record Coord(int x, int y) {
         Coord add(Coord c) {
-            return new Coord(x+c.x, y+c.y);
+            return new Coord(x + c.x, y + c.y);
         }
+
         Coord minus(Coord c) {
-            return new Coord(x-c.x, y-c.y);
+            return new Coord(x - c.x, y - c.y);
         }
     }
 
@@ -111,4 +103,3 @@ public class Day08 extends AbstractDay {
         System.out.println(day08.part2());
     }
 }
-
