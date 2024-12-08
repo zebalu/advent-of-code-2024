@@ -35,10 +35,19 @@ public class Day08 extends AbstractDay {
 
     @Override
     public String part1() {
+        return Integer.toString(countByTactic(this::collectCloseAntinodesFor));
+    }
+
+    @Override
+    public String part2() {
+        return Integer.toString(countByTactic(this::collectAllAntinodes));
+    }
+
+    private int countByTactic(Function<List<Coord>, Set<Coord>> collectionLogic) {
         Set<Coord> antinodes = antennaMap.values().stream()
-                .flatMap(v->collectCloseAntinodesFor(v).stream())
+                .flatMap(v->collectionLogic.apply(v).stream())
                 .collect(Collectors.toSet());
-        return Integer.toString(antinodes.size());
+        return antinodes.size();
     }
 
     private Set<Coord> collectCloseAntinodesFor(List<Coord> coords) {
@@ -76,14 +85,6 @@ public class Day08 extends AbstractDay {
 
     private boolean isValid(Coord c) {
         return 0 <= c.x && c.x < width && 0 <= c.y && c.y < height;
-    }
-
-    @Override
-    public String part2() {
-        Set<Coord> antinodes = antennaMap.values().stream()
-                .flatMap(v->collectAllAntinodes(v).stream())
-                .collect(Collectors.toSet());
-        return Integer.toString(antinodes.size());
     }
 
     private record Coord(int x, int y) {
