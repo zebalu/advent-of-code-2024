@@ -13,18 +13,9 @@ public class Day10 extends AbstractDay {
     }
     public Day10(String input) {
         super(input, "Hoof It", 10);
-        var lines = INPUT.lines().toList();
-        height = lines.size();
-        width= lines.getFirst().length();
-        data = new int[height][width];
-        for(int y = 0; y < height; y++) {
-            String line = lines.get(y);
-            data[y] = new int[width];
-            for(int x = 0; x < width; x++) {
-                int v = Integer.parseInt(line.substring(x, x + 1));
-                data[y][x] = v;
-            }
-        }
+        data = IOUtil.readIntGrid(INPUT);
+        height = data.length;
+        width = data[0].length;
     }
 
     @Override
@@ -32,8 +23,7 @@ public class Day10 extends AbstractDay {
         int sum = 0;
         for(int y = 0; y < height; y++) {
             for(int x = 0; x < width; x++) {
-                int v = data[y][x];
-                if(v==0) {
+                if(data[y][x]==0) {
                     int score = calcScoreOf(x,y);
                     sum+=score;
                 }
@@ -43,29 +33,31 @@ public class Day10 extends AbstractDay {
     }
 
     private int calcScoreOf(int x, int y) {
-        Set<Coord> visited = new HashSet<>();
+        Coord start = new Coord(x,y);
+        Set<Coord> visited = new HashSet<>(List.of(start));
         Set<Coord> reached9s = new HashSet<>();
-        Queue<Coord> toProcess = new LinkedList<>();
-        toProcess.add(new Coord(x, y));
+        Queue<Coord> toProcess = new ArrayDeque<>(List.of(start));
         while(!toProcess.isEmpty()) {
             Coord c = toProcess.poll();
             int currentHeight = heightOf(c);
             if(currentHeight==9) {
                 reached9s.add(c);
             } else {
-                c.surrounding().stream().filter(this::isValid).filter(n ->
-                        heightOf(n) == currentHeight + 1
-                ).filter(visited::add).forEach(toProcess::add);
+                c.surrounding().stream()
+                        .filter(this::isValid)
+                        .filter(n -> heightOf(n) == currentHeight + 1)
+                        .filter(visited::add)
+                        .forEach(toProcess::add);
             }
         }
         return reached9s.size();
     }
 
-    boolean isValid(Coord c) {
+    private boolean isValid(Coord c) {
         return 0<=c.x() && 0<=c.y() && c.x()<width && c.y()<height;
     }
 
-    int heightOf(Coord c) {
+    private int heightOf(Coord c) {
         return data[c.y()][c.x()];
     }
 
@@ -74,8 +66,7 @@ public class Day10 extends AbstractDay {
         int sum = 0;
         for(int y = 0; y < height; y++) {
             for(int x = 0; x < width; x++) {
-                int v = data[y][x];
-                if(v==0) {
+                if(data[y][x]==0) {
                     int score = calcTrailScoreOf(x,y);
                     sum+=score;
                 }
@@ -85,28 +76,31 @@ public class Day10 extends AbstractDay {
     }
 
     private int calcTrailScoreOf(int x, int y) {
-        Set<SequencedSet<Coord>> visited = new HashSet<>();
+        SequencedSet<Coord> start = new LinkedHashSet<>(List.of(new Coord(x,y)));
+        Set<SequencedSet<Coord>> visited = new HashSet<>(List.of(start));
         Set<SequencedSet<Coord>> reached9s = new HashSet<>();
-        Queue<SequencedSet<Coord>> toProcess = new LinkedList<>();
-        SequencedSet<Coord> start = new LinkedHashSet<>();
-        start.add(new Coord(x, y));
-        toProcess.add(start);
+        Queue<SequencedSet<Coord>> toProcess = new LinkedList<>(List.of(start));
         while(!toProcess.isEmpty()) {
             SequencedSet<Coord> c = toProcess.poll();
             int currentHeight = heightOf(c.getLast());
             if(currentHeight==9) {
                 reached9s.add(c);
             } else {
-                c.getLast().surrounding().stream().filter(this::isValid).filter(n ->
-                        heightOf(n) == currentHeight + 1
-                ).map(n->{
-                    SequencedSet<Coord> nS = new LinkedHashSet<>(c);
-                    nS.add(n);
-                    return nS;
-                }).filter(visited::add).forEach(toProcess::add);
+                c.getLast().surrounding().stream()
+                        .filter(this::isValid)
+                        .filter(n -> heightOf(n) == currentHeight + 1)
+                        .map(n->extend(c, n))
+                        .filter(visited::add)
+                        .forEach(toProcess::add);
             }
         }
         return reached9s.size();
+    }
+
+    private SequencedSet<Coord> extend(SequencedSet<Coord> base, Coord newCord) {
+        SequencedSet<Coord> extended = new LinkedHashSet<>(base);
+        extended.add(newCord);
+        return extended;
     }
 
     private record Coord(int x, int y) {

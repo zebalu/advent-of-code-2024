@@ -30,4 +30,20 @@ public class IOUtil {
         }).toList();
     }
 
+    public static int[][] readIntGrid(String text) {
+        var lines = text.lines().toList();
+        int height = lines.size();
+        int width = lines.getFirst().length();
+        int[][] data = new int[height][width];
+        for(int y = 0; y < height; y++) {
+            String line = lines.get(y);
+            data[y] = new int[width];
+            for(int x = 0; x < width; x++) {
+                int v = Integer.parseInt(line.substring(x, x + 1));
+                data[y][x] = v;
+            }
+        }
+        return data;
+    }
+
 }
