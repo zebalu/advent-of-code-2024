@@ -46,4 +46,19 @@ public class IOUtil {
         return data;
     }
 
+    public static char[][] readCharGrid(String text) {
+        var lines = text.lines().toList();
+        int height = lines.size();
+        int width = lines.getFirst().length();
+        char[][] data = new char[height][width];
+        for(int y = 0; y < height; y++) {
+            String line = lines.get(y);
+            data[y] = new char[width];
+            for(int x = 0; x < width; x++) {
+                data[y][x] = line.charAt(x);
+            }
+        }
+        return data;
+    }
+
 }
