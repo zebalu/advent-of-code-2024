@@ -54,32 +54,43 @@ public class Day11 extends AbstractDay {
         }
         long stone = stoneStep.stone;
         if (stone == 0L) {
-            if (stoneStep.step == 1) {
-                stonesMemory.put(stoneStep, 1L);
-            } else {
-                StoneStep nextStep = new StoneStep(1L, stoneStep.step - 1);
-                stonesMemory.put(stoneStep, countStones(nextStep, stonesMemory));
-            }
+            handleStone0(stoneStep, stonesMemory);
         } else if (isEvenDigitCount(stone)) {
-            if (stoneStep.step == 1) {
-                stonesMemory.put(stoneStep, 2L);
-            } else {
-                long sum = 0L;
-                for (var splitted : splitStone(stoneStep.stone)) {
-                    sum += countStones(new StoneStep(splitted, stoneStep.step - 1), stonesMemory);
-                }
-                stonesMemory.put(stoneStep, sum);
-            }
+            handleEvenDigitCountStone(stoneStep, stonesMemory);
         } else {
-            if (stoneStep.step == 1) {
-                stonesMemory.put(stoneStep, 1L);
-            } else {
-                stonesMemory.put(stoneStep, countStones(new StoneStep(stoneStep.stone * 2024, stoneStep.step - 1), stonesMemory));
-            }
+            handleElseTypeStone(stoneStep, stonesMemory);
         }
         return stonesMemory.get(stoneStep);
     }
 
+    private void handleStone0(StoneStep stoneStep, Map<StoneStep, Long> stonesMemory) {
+        if (stoneStep.step == 1) {
+            stonesMemory.put(stoneStep, 1L);
+        } else {
+            StoneStep nextStep = new StoneStep(1L, stoneStep.step - 1);
+            stonesMemory.put(stoneStep, countStones(nextStep, stonesMemory));
+        }
+    }
+
+    private void handleEvenDigitCountStone(StoneStep stoneStep, Map<StoneStep, Long> stonesMemory) {
+        if (stoneStep.step == 1) {
+            stonesMemory.put(stoneStep, 2L);
+        } else {
+            long sum = 0L;
+            for (var splitted : splitStone(stoneStep.stone)) {
+                sum += countStones(new StoneStep(splitted, stoneStep.step - 1), stonesMemory);
+            }
+            stonesMemory.put(stoneStep, sum);
+        }
+    }
+
+    private void handleElseTypeStone(StoneStep stoneStep, Map<StoneStep, Long> stonesMemory) {
+        if (stoneStep.step == 1) {
+            stonesMemory.put(stoneStep, 1L);
+        } else {
+            stonesMemory.put(stoneStep, countStones(new StoneStep(stoneStep.stone * 2024, stoneStep.step - 1), stonesMemory));
+        }
+    }
 
     private boolean isEvenDigitCount(long stone) {
         String printed = Long.toString(stone);
