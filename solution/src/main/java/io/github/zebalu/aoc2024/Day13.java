@@ -57,12 +57,14 @@ public class Day13 extends AbstractDay {
     /// * __py__ is the prize's y coordinate
     ///
     /// ```
-    /// ax1+bx2 = px --> a = (px-bx2)/x1
-    /// ay1+by2 = py --> ((px-bx2)/x1)y1+by2 = py
+    ///              ax1+bx2 = px --> 
+    ///                    a = (px-bx2)/x1
+    ///              ay1+by2 = py --> ((px-bx2)/x1)y1+by2 = py
+    ///  ((px-bx2)/x1)y1+by2 = py
     ///
-    /// (pxy1-bx2y1)/x1+by2 = py
+    ///  (pxy1-bx2y1)/x1+by2 = py
     /// pxy1 - bx2y1 + by2x1 = pyx1
-    /// b(y2x1-x2y1) = pyx1 - pxy1
+    ///         b(y2x1-x2y1) = pyx1 - pxy1
     ///
     /// b = (pyx1 - pxy1) / (y2x1 - x2y1)
     /// a = (px-((pyx1-pxy1)/(y2x1-x2y1))*x2)/x1
