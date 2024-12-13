@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class Day13 extends AbstractDay {
+    private static final long EXPANSION = 10_000_000_000_000L;
     private final List<Machine> machines;
     public Day13() {
         this(IOUtil.readInput(13));
@@ -67,12 +68,12 @@ public class Day13 extends AbstractDay {
     }
 
     private List<Machine> expandPrizes() {
-        return machines.stream().map(o->new Machine(o.aMove, o.bMove, new Coord(10_000_000_000_000L+o.prize.x, 10_000_000_000_000L+o.prize.y))).collect(Collectors.toList());
+        return machines.stream().map(o->new Machine(o.aMove, o.bMove, new Coord(EXPANSION+o.prize.x, EXPANSION+o.prize.y))).collect(Collectors.toList());
     }
 
-    private record Coord(long x, long y) {    }
+    private record Coord(long x, long y) { }
 
-    private record Machine(Coord aMove, Coord bMove, Coord prize) {    }
+    private record Machine(Coord aMove, Coord bMove, Coord prize) { }
 
     public static void main(String[] args) {
         String input = IOUtil.readInput(13);
