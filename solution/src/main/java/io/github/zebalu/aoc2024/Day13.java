@@ -72,13 +72,18 @@ public class Day13 extends AbstractDay {
     /// a = (px - bx2) / x1
     /// ```
     private long mathPriceOf(Machine machine) {
-        long b = (machine.prize.y*machine.aMove.x - machine.prize.x*machine.aMove.y) / (machine.bMove.y*machine.aMove.x-machine.bMove.x*machine.aMove.y);
-        long a = (machine.prize.x-b*machine.bMove.x)/machine.aMove.x;
-        Coord location = new Coord(a*machine.aMove.x+b*machine.bMove.x, a*machine.aMove.y+b*machine.bMove.y);
-        if(location.equals(machine.prize)) {
-            return a*3+b;
-        }
-        return 0L;
+        return switch (machine) {
+            case Machine(Coord(var x1, var y1), Coord(var x2, var y2), Coord(var px, var py)) -> {
+                long b = (py * x1 - px * y1) / (y2 * x1 - x2 * y1);
+                long a = (px - b * x2) / x1;
+                Coord location = new Coord(a * x1 + b * x2, a * y1 + b * y2);
+                if (location.equals(machine.prize)) {
+                    yield a * 3 + b;
+                }
+                yield 0L;
+            }
+            default -> throw new IllegalArgumentException("Can not work with " + machine);
+        };
     }
 
     private List<Machine> expandPrizes() {
