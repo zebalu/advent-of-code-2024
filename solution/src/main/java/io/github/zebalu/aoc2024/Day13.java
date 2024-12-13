@@ -46,6 +46,16 @@ public class Day13 extends AbstractDay {
 
     /// Calculates price by equation.
     ///
+    /// where:
+    /// * __a__ is the number of times _a_ was pushed
+    /// * __b__ is the number of times _b_ was pushed
+    /// * __x1__ is the move on x-axis by _a_ push
+    /// * __y1__ is the move on y-axis by _a_ push
+    /// * __x2__ is the move on x-axis by _b_ push
+    /// * __y2__ is the move on y-axis by _b_ push
+    /// * __px__ is the prize's x coordinate
+    /// * __py__ is the prize's y coordinate
+    ///
     /// ```
     /// ax1+bx2 = px --> a = (px-bx2)/x1
     /// ay1+by2 = py --> ((px-bx2)/x1)y1+by2 = py
@@ -54,8 +64,10 @@ public class Day13 extends AbstractDay {
     /// pxy1 - bx2y1 + by2x1 = pyx1
     /// b(y2x1-x2y1) = pyx1 - pxy1
     ///
-    /// b = (pyx1-pxy1) / (y2x1-x2y1)
-    /// a = (px - ((pyx1-pxy1) / (y2x1-x2y1))*x2)/x1
+    /// b = (pyx1 - pxy1) / (y2x1 - x2y1)
+    /// a = (px-((pyx1-pxy1)/(y2x1-x2y1))*x2)/x1
+    /// or
+    /// a = (px - bx2) / x1
     /// ```
     private long mathPriceOf(Machine machine) {
         long b = (machine.prize.y*machine.aMove.x - machine.prize.x*machine.aMove.y) / (machine.bMove.y*machine.aMove.x-machine.bMove.x*machine.aMove.y);
