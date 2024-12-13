@@ -82,7 +82,6 @@ public class Day13 extends AbstractDay {
                 }
                 yield 0L;
             }
-            default -> throw new IllegalArgumentException("Can not work with " + machine);
         };
     }
 
