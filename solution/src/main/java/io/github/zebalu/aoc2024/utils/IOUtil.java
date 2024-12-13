@@ -61,4 +61,21 @@ public class IOUtil {
         return data;
     }
 
+    public static List<List<String>> groupByEmptyLines(String data) {
+        List<List<String>> grouped = new ArrayList<>();
+        List<String> current = new ArrayList<>();
+        for (String line: data.lines().toList()) {
+            if(line.isBlank()) {
+                grouped.add(current);
+                current = new ArrayList<>();
+            } else {
+                current.add(line);
+            }
+        }
+        if(!current.isEmpty()) {
+            grouped.add(current);
+        }
+        return grouped;
+    }
+
 }
