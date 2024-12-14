@@ -67,11 +67,11 @@ public class Day14 extends AbstractDay {
             int vMid = HEIGHT / 2;
             if (x < hMid && y < vMid) {
                 return 1;
-            } else if(x < hMid && y > vMid) {
+            } else if (x < hMid && y > vMid) {
                 return 2;
-            } else if(x > hMid && y < vMid) {
+            } else if (x > hMid && y < vMid) {
                 return 3;
-            } else if(x > hMid && y > vMid) {
+            } else if (x > hMid && y > vMid) {
                 return 4;
             }
             return 0;
@@ -92,7 +92,7 @@ public class Day14 extends AbstractDay {
 
     private record QuadrantCounter(int q1, int q2, int q3, int q4) {
         static QuadrantCounter fromRobots(List<Robot> robots) {
-            int q1 = 0, q2 = 0, q3 =0, q4 = 0;
+            int q1 = 0, q2 = 0, q3 = 0, q4 = 0;
             for (Robot robot : robots) {
                 switch (robot.getQuadrant()) {
                     case 1 -> ++q1;
@@ -109,7 +109,10 @@ public class Day14 extends AbstractDay {
         }
 
         boolean isAnyQuadrantDominant() {
-            return q1 > (q2+q3+q4) || q2 > (q1+q3+q4) || q3 > (q1+q2+q4) || q4 > (q1+q2+q3);
+            return  q1 > (q2 + q3 + q4) ||
+                    q2 > (q1 + q3 + q4) ||
+                    q3 > (q1 + q2 + q4) ||
+                    q4 > (q1 + q2 + q3);
         }
     }
 
