@@ -53,11 +53,14 @@ public class Day14 extends AbstractDay {
         do {
             ++stepcount;
             Set<Coord> positions = new HashSet<>();
+            boolean alreadyCollided = false;
             for (Robot robot : robots) {
                 robot.move();
-                positions.add(Coord.fromRobot(robot));
+                if(!alreadyCollided) {
+                    alreadyCollided = !positions.add(Coord.fromRobot(robot));
+                }
             }
-            noCollisionDetected = robots.size() == positions.size();
+            noCollisionDetected = !alreadyCollided;
         } while (!noCollisionDetected);
         return Integer.toString(stepcount);
     }
@@ -69,35 +72,33 @@ public class Day14 extends AbstractDay {
         private int y;
         private final int vx;
         private final int vy;
-        private final int width;
-        private final int height;
 
 
-        public Robot(int x, int y, int vx, int vy, int width, int height) {
+        public Robot(int x, int y, int vx, int vy) {
             this.x = x;
             this.y = y;
             this.vx = vx;
             this.vy = vy;
-            this.width = width;
-            this.height = height;
         }
 
         void move() {
-            x = (x + vx + width) % width;
-            y = (y + vy + height) % height;
+            x = (x + vx + WIDTH) % WIDTH;
+            y = (y + vy + HEIGHT) % HEIGHT;
         }
 
         int getQuadrant() {
-            if (x < width / 2) {
-                if (y < height / 2) {
+            int hMid = WIDTH / 2;
+            int vMid = HEIGHT / 2;
+            if (x < hMid) {
+                if (y < vMid) {
                     return 1;
-                } else if (y > height / 2) {
+                } else if (y > vMid) {
                     return 2;
                 }
-            } else if (x > width / 2) {
-                if (y > height / 2) {
+            } else if (x > hMid) {
+                if (y > vMid) {
                     return 3;
-                } else if (y < height / 2) {
+                } else if (y < vMid) {
                     return 4;
                 }
             }
@@ -111,7 +112,7 @@ public class Day14 extends AbstractDay {
                 int y = Integer.parseInt(matcher.group(2));
                 int vx = Integer.parseInt(matcher.group(3));
                 int vy = Integer.parseInt(matcher.group(4));
-                return new Robot(x, y, vx, vy, WIDTH, HEIGHT);
+                return new Robot(x, y, vx, vy);
             }
             throw new IllegalArgumentException("Can read line: " + line);
         }
