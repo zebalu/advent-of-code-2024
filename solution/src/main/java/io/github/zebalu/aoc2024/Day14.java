@@ -36,8 +36,7 @@ public class Day14 extends AbstractDay {
         do {
             ++stepcount;
             robots.forEach(Robot::move);
-            QuadrantCounter qc = QuadrantCounter.fromRobots(robots);
-            areRobotsMostlyInOneQuadrant = qc.isAnyQuadrantHigherThan(robots.size()/2);
+            areRobotsMostlyInOneQuadrant = QuadrantCounter.fromRobots(robots).isAnyQuadrantDominant();
         } while (!areRobotsMostlyInOneQuadrant);
         return Integer.toString(stepcount);
     }
@@ -109,8 +108,8 @@ public class Day14 extends AbstractDay {
             return q1 * q2 * q3 * q4;
         }
 
-        boolean isAnyQuadrantHigherThan(int lowerLimit) {
-            return q1 > lowerLimit || q2 > lowerLimit || q3 > lowerLimit || q4 > lowerLimit;
+        boolean isAnyQuadrantDominant() {
+            return q1 > (q2+q3+q4) || q2 > (q1+q3+q4) || q3 > (q1+q2+q4) || q4 > (q1+q2+q3);
         }
     }
 
