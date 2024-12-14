@@ -40,19 +40,6 @@ public class Day14 extends AbstractDay {
             }
             QuadrantCounter qc = QuadrantCounter.fromRobots(robots);
             areRobotsMostlyInOneQuadrant = qc.isAnyQuadrantHigherThan(robots.size()/2);
-            if (areRobotsMostlyInOneQuadrant) {
-                for (int y = 0; y < HEIGHT; y++) {
-                    for (int x = 0; x < WIDTH; x++) {
-                        int cx=x, cy=y;
-                            if (robots.stream().anyMatch(r->r.isAt(cx,cy))) {
-                                System.out.print('#');
-                            } else {
-                                System.out.print(' ');
-                            }
-                    }
-                    System.out.println();
-                }
-            }
         } while (!areRobotsMostlyInOneQuadrant);
         return Integer.toString(stepcount);
     }
@@ -81,24 +68,16 @@ public class Day14 extends AbstractDay {
         int getQuadrant() {
             int hMid = WIDTH / 2;
             int vMid = HEIGHT / 2;
-            if (x < hMid) {
-                if (y < vMid) {
-                    return 1;
-                } else if (y > vMid) {
-                    return 2;
-                }
-            } else if (x > hMid) {
-                if (y > vMid) {
-                    return 3;
-                } else if (y < vMid) {
-                    return 4;
-                }
+            if (x < hMid && y < vMid) {
+                return 1;
+            } else if(x < hMid && y > vMid) {
+                return 2;
+            } else if(x > hMid && y < vMid) {
+                return 3;
+            } else if(x > hMid && y > vMid) {
+                return 4;
             }
             return 0;
-        }
-
-        boolean isAt(int x, int y) {
-            return this.x == x && this.y == y;
         }
 
         static Robot fromString(String line) {
