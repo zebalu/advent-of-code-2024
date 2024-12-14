@@ -24,44 +24,36 @@ public class Day14 extends AbstractDay {
         for (int i = 0; i < 100; ++i) {
             robots.forEach(Robot::move);
         }
-        int q1 = 0;
-        int q2 = 0;
-        int q3 = 0;
-        int q4 = 0;
-        for (Robot robot : robots) {
-            switch (robot.getQuadrant()) {
-                case 1 -> q1++;
-                case 2 -> q2++;
-                case 3 -> q3++;
-                case 4 -> q4++;
-            }
-        }
-        int safetyScore = q1 * q2 * q3 * q4;
-        return Integer.toString(safetyScore);
+        QuadrantCounter qc = QuadrantCounter.fromRobots(robots);
+        return Integer.toString(qc.safetyScore());
     }
 
     @Override
     public String part2() {
-        record Coord(int x, int y) {
-            static Coord fromRobot(Robot robot) {
-                return new Coord(robot.x, robot.y);
-            }
-        }
         List<Robot> robots = INPUT.lines().map(Robot::fromString).toList();
         int stepcount = 0;
-        boolean noCollisionDetected;
+        boolean areRobotsMostlyInOneQuadrant;
         do {
             ++stepcount;
-            Set<Coord> positions = new HashSet<>();
-            boolean alreadyCollided = false;
             for (Robot robot : robots) {
                 robot.move();
-                if(!alreadyCollided) {
-                    alreadyCollided = !positions.add(Coord.fromRobot(robot));
+            }
+            QuadrantCounter qc = QuadrantCounter.fromRobots(robots);
+            areRobotsMostlyInOneQuadrant = qc.isAnyQuadrantHigherThan(robots.size()/2);
+            if (areRobotsMostlyInOneQuadrant) {
+                for (int y = 0; y < HEIGHT; y++) {
+                    for (int x = 0; x < WIDTH; x++) {
+                        int cx=x, cy=y;
+                            if (robots.stream().anyMatch(r->r.isAt(cx,cy))) {
+                                System.out.print('#');
+                            } else {
+                                System.out.print(' ');
+                            }
+                    }
+                    System.out.println();
                 }
             }
-            noCollisionDetected = !alreadyCollided;
-        } while (!noCollisionDetected);
+        } while (!areRobotsMostlyInOneQuadrant);
         return Integer.toString(stepcount);
     }
 
@@ -105,6 +97,10 @@ public class Day14 extends AbstractDay {
             return 0;
         }
 
+        boolean isAt(int x, int y) {
+            return this.x == x && this.y == y;
+        }
+
         static Robot fromString(String line) {
             Matcher matcher = numberpattern.matcher(line);
             if (matcher.find()) {
@@ -115,6 +111,29 @@ public class Day14 extends AbstractDay {
                 return new Robot(x, y, vx, vy);
             }
             throw new IllegalArgumentException("Can read line: " + line);
+        }
+    }
+
+    private record QuadrantCounter(int q1, int q2, int q3, int q4) {
+        static QuadrantCounter fromRobots(List<Robot> robots) {
+            int q1 = 0, q2 = 0, q3 =0, q4 = 0;
+            for (Robot robot : robots) {
+                switch (robot.getQuadrant()) {
+                    case 1 -> ++q1;
+                    case 2 -> ++q2;
+                    case 3 -> ++q3;
+                    case 4 -> ++q4;
+                }
+            }
+            return new QuadrantCounter(q1, q2, q3, q4);
+        }
+
+        int safetyScore() {
+            return q1 * q2 * q3 * q4;
+        }
+
+        boolean isAnyQuadrantHigherThan(int lowerLimit) {
+            return q1 > lowerLimit || q2 > lowerLimit || q3 > lowerLimit || q4 > lowerLimit;
         }
     }
 
