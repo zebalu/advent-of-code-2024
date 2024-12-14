@@ -35,9 +35,7 @@ public class Day14 extends AbstractDay {
         boolean areRobotsMostlyInOneQuadrant;
         do {
             ++stepcount;
-            for (Robot robot : robots) {
-                robot.move();
-            }
+            robots.forEach(Robot::move);
             QuadrantCounter qc = QuadrantCounter.fromRobots(robots);
             areRobotsMostlyInOneQuadrant = qc.isAnyQuadrantHigherThan(robots.size()/2);
         } while (!areRobotsMostlyInOneQuadrant);
