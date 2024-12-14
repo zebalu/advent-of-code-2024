@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 public class Day14 extends AbstractDay {
     private static final int WIDTH = 101;
     private static final int HEIGHT = 103;
+
     public Day14() {
         this(IOUtil.readInput(14));
     }
@@ -20,14 +21,14 @@ public class Day14 extends AbstractDay {
     @Override
     public String part1() {
         List<Robot> robots = INPUT.lines().map(Robot::fromString).toList();
-        for(int i=0; i<100; ++i) {
+        for (int i = 0; i < 100; ++i) {
             robots.forEach(Robot::move);
         }
         int q1 = 0;
         int q2 = 0;
         int q3 = 0;
         int q4 = 0;
-        for(Robot robot: robots) {
+        for (Robot robot : robots) {
             switch (robot.getQuadrant()) {
                 case 1 -> q1++;
                 case 2 -> q2++;
@@ -35,7 +36,7 @@ public class Day14 extends AbstractDay {
                 case 4 -> q4++;
             }
         }
-        int safetyScore = q1*q2*q3*q4;
+        int safetyScore = q1 * q2 * q3 * q4;
         return Integer.toString(safetyScore);
     }
 
@@ -52,7 +53,7 @@ public class Day14 extends AbstractDay {
         do {
             ++stepcount;
             Set<Coord> positions = new HashSet<>();
-            for(Robot robot: robots) {
+            for (Robot robot : robots) {
                 robot.move();
                 positions.add(Coord.fromRobot(robot));
             }
@@ -87,16 +88,16 @@ public class Day14 extends AbstractDay {
         }
 
         int getQuadrant() {
-            if(x<width/2) {
-                if(y<height/2) {
+            if (x < width / 2) {
+                if (y < height / 2) {
                     return 1;
-                } else if (y > height/2) {
+                } else if (y > height / 2) {
                     return 2;
                 }
-            } else if(x>width/2) {
-                if(y>height/2) {
+            } else if (x > width / 2) {
+                if (y > height / 2) {
                     return 3;
-                } else if (y < height/2) {
+                } else if (y < height / 2) {
                     return 4;
                 }
             }
