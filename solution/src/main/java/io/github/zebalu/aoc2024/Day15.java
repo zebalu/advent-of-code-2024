@@ -2,44 +2,49 @@ package io.github.zebalu.aoc2024;
 
 import io.github.zebalu.aoc2024.utils.IOUtil;
 
-import java.util.Arrays;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Day15 extends AbstractDay {
-    private final char[][] data;
+    private char[][] data;
     private final String move;
-    private final int width;
-    private final int height;
+    private final String gridString;
+    private int width;
+    private int height;
     public Day15(String input) {
         super(input, "Warehouse Woes", 15);
-        char[][] data = null;
         StringBuilder sb = new StringBuilder();
+        String gs = null;
         for (String s : INPUT.lines().toList()) {
             if(s.isBlank()) {
-                if(data == null) {
-                    data = IOUtil.readCharGrid(sb.toString());
+                if(gs == null) {
+                    gs = sb.toString();
                     sb.setLength(0);
                 }
             } else {
                 sb.append(s);
-                if(data == null) {
+                if(gs == null) {
                     sb.append('\n');
                 }
             }
         }
+        gridString = gs;
         move = sb.toString();
-        this.data = data;
-        height = data.length;
-        width = data[0].length;
     }
 
     @Override
     public String part1() {
+        data = IOUtil.readCharGrid(gridString);
+        height = data.length;
+        width = data[0].length;
         int robotX = 0, robotY = 0;
-        for(int y=0; y<height; y++) {
-            for(int x=0; x<width; x++) {
+        boolean found = false;
+        for(int y=0; y<height && !found; y++) {
+            for(int x=0; x<width && !found; x++) {
                 if(data[y][x] == '@') {
                     robotX = x;
                     robotY = y;
+                    found = true;
                 }
             }
         }
@@ -71,14 +76,12 @@ public class Day15 extends AbstractDay {
         long sum = 0L;
         for(int y=0; y<height; y++) {
             for(int x=0; x<width; x++) {
-                System.out.print(data[y][x]);
                 if(data[y][x] == 'O') {
                     sum += (100L*y+x);
                 }
             }
-            System.out.println();
         }
-        return ""+sum;
+        return Long.toString(sum);
     }
 
     private boolean canMoveUp(int x, int y) {
@@ -211,7 +214,261 @@ public class Day15 extends AbstractDay {
 
     @Override
     public String part2() {
-        return "";
+        data = IOUtil.readCharGrid(gridString.lines().map(this::expand).collect(Collectors.joining("\n")));
+        height = data.length;
+        width = data[0].length;
+        int robotX = 0, robotY = 0;
+        boolean found = false;
+        for(int y=0; y<height && !found; y++) {
+            for(int x=0; x<width && !found; x++) {
+                if(data[y][x] == '@') {
+                    robotX = x;
+                    robotY = y;
+                    found = true;
+                }
+            }
+        }
+        for(int i = 0; i<move.length(); i++) {
+            char mv = move.charAt(i);
+            try {
+                if (mv == '^' && canMoveUpP2(robotX, robotY)) {
+                    moveUpP2(robotX, robotY);
+                    --robotY;
+                } else if (mv == 'v' && canMoveDownP2(robotX, robotY)) {
+                    moveDownP2(robotX, robotY);
+                    ++robotY;
+                } else if (mv == '<' && canMoveLeft(robotX, robotY)) {
+                    moveLeft(robotX, robotY);
+                    --robotX;
+                } else if (mv == '>' && canMoveRight(robotX, robotY)) {
+                    moveRight(robotX, robotY);
+                    ++robotX;
+                }
+                if(data[robotY][robotX] != '@') {
+                    throw new IllegalStateException("Illegal move: " + mv+" at "+i);
+                }
+            } catch (Exception e) {
+                System.out.println("mv: "+mv);
+                System.out.println("i: "+i);
+                throw e;
+            }
+        }
+        long sum = 0L;
+        for(int y=0; y<height; y++) {
+            for(int x=0; x<width; x++) {
+                if(data[y][x] == '[') {
+                    sum += (100L*y+x);
+                }
+            }
+        }
+        return Long.toString(sum);
+    }
+
+    private String expand(String line) {
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0; i < line.length(); i++) {
+            char c = line.charAt(i);
+            if(c== '#') {
+                sb.append("##");
+            } else if(c=='O') {
+                sb.append("[]");
+            } else if (c=='.') {
+                sb.append("..");
+            } else if (c=='@') {
+                sb.append("@.");
+            } else {
+                throw new IllegalArgumentException("invalid character: " + c);
+            }
+        }
+        return sb.toString();
+    }
+
+    private boolean canMoveUpP2(int x, int y) {
+        List<List<Integer>> wantsToMove = new ArrayList<>();
+        wantsToMove.add(List.of(x));
+        for(int iY = y-1; iY<height; --iY) {
+            boolean allSpaces = true;
+            List<Integer> prevMoves = wantsToMove.getLast();
+            for(int mx : prevMoves) {
+                allSpaces &= data[iY][mx] == '.';
+            }
+            if(!allSpaces) {
+                boolean anyWall = false;
+                for(int mx : prevMoves) {
+                    anyWall |= data[iY][mx] == '#';
+                }
+                if(!anyWall) {
+                    SequencedSet<Integer> nextmoves = new LinkedHashSet<>();
+                    for(int mx : prevMoves) {
+                        if(data[iY][mx] == '[') {
+                            nextmoves.add(mx);
+                            nextmoves.add(mx+1);
+                        } else if(data[iY][mx] == ']') {
+                            nextmoves.add(mx-1);
+                            nextmoves.add(mx);
+                        }
+                    }
+                    wantsToMove.addLast(new ArrayList<>(nextmoves));
+                } else {
+                    return false;
+                }
+            } else {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void moveUpP2(int x, int y) {
+        if(data[y][x] != '@') {
+            throw new IllegalArgumentException("Illegal move");
+        }
+        boolean canStop = false;
+        List<List<Integer>> wantsToMove = new ArrayList<>();
+        wantsToMove.add(List.of(x));
+        for(int iY = y-1; iY<height && !canStop; --iY) {
+            boolean allSpaces = true;
+            List<Integer> prevMoves = wantsToMove.getLast();
+            for(int mx : prevMoves) {
+                allSpaces &= data[iY][mx] == '.';
+            }
+            if(!allSpaces) {
+                boolean anyWall = false;
+                for(int mx : prevMoves) {
+                    anyWall |= data[iY][mx] == '#';
+                }
+                if(!anyWall) {
+                    SequencedSet<Integer> nextmoves = new LinkedHashSet<>();
+                    for(int mx : prevMoves) {
+                        if(data[iY][mx] == '[') {
+                            nextmoves.add(mx);
+                            nextmoves.add(mx+1);
+                        } else if(data[iY][mx] == ']') {
+                            nextmoves.add(mx-1);
+                            nextmoves.add(mx);
+                        }
+                    }
+                    wantsToMove.addLast(new ArrayList<>(nextmoves));
+                } else {
+                    return;
+                }
+            } else {
+                canStop = true;
+            }
+        }
+        int iY = y;
+        Map<Integer, Character> prevLine = new HashMap<>();
+        Map<Integer, Character> currentLine = new HashMap<>();
+        prevLine.put(x, '.');
+        for(var toMove : wantsToMove) {
+            currentLine = new HashMap<>();
+            for(int mx: toMove) {
+                currentLine.put(mx, data[iY][mx]);
+                data[iY][mx] = prevLine.getOrDefault(mx, '.');
+            }
+            for(int mx: prevLine.keySet()) {
+                data[iY][mx] = prevLine.get(mx);
+            }
+            prevLine = currentLine;
+            --iY;
+        }
+        for(int mx: prevLine.keySet()) {
+            data[iY][mx] = prevLine.get(mx);
+        }
+    }
+
+    private boolean canMoveDownP2(int x, int y) {
+        List<List<Integer>> wantsToMove = new ArrayList<>();
+        wantsToMove.add(List.of(x));
+        for(int iY = y+1; iY<height; ++iY) {
+            boolean allSpaces = true;
+            List<Integer> prevMoves = wantsToMove.getLast();
+            for(int mx : prevMoves) {
+                allSpaces &= data[iY][mx] == '.';
+            }
+            if(!allSpaces) {
+                boolean anyWall = false;
+                for(int mx : prevMoves) {
+                    anyWall |= data[iY][mx] == '#';
+                }
+                if(!anyWall) {
+                    SequencedSet<Integer> nextmoves = new LinkedHashSet<>();
+                    for(int mx : prevMoves) {
+                        if(data[iY][mx] == '[') {
+                            nextmoves.add(mx);
+                            nextmoves.add(mx+1);
+                        } else if(data[iY][mx] == ']') {
+                            nextmoves.add(mx-1);
+                            nextmoves.add(mx);
+                        }
+                    }
+                    wantsToMove.addLast(new ArrayList<>(nextmoves));
+                } else {
+                    return false;
+                }
+            } else {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void moveDownP2(int x, int y) {
+        if(data[y][x] != '@') {
+            throw new IllegalArgumentException("Illegal move");
+        }
+        boolean canStop = false;
+        List<List<Integer>> wantsToMove = new ArrayList<>();
+        wantsToMove.add(List.of(x));
+        for(int iY = y+1; iY<height && !canStop; ++iY) {
+            boolean allSpaces = true;
+            List<Integer> prevMoves = wantsToMove.getLast();
+            for(int mx : prevMoves) {
+                allSpaces &= data[iY][mx] == '.';
+            }
+            if(!allSpaces) {
+                boolean anyWall = false;
+                for(int mx : prevMoves) {
+                    anyWall |= data[iY][mx] == '#';
+                }
+                if(!anyWall) {
+                    SequencedSet<Integer> nextmoves = new LinkedHashSet<>();
+                    for(int mx : prevMoves) {
+                        if(data[iY][mx] == '[') {
+                            nextmoves.add(mx);
+                            nextmoves.add(mx+1);
+                        } else if(data[iY][mx] == ']') {
+                            nextmoves.add(mx-1);
+                            nextmoves.add(mx);
+                        }
+                    }
+                    wantsToMove.addLast(new ArrayList<>(nextmoves));
+                } else {
+                    return;
+                }
+            } else {
+                canStop = true;
+            }
+        }
+        int iY = y;
+        Map<Integer, Character> prevLine = new HashMap<>();
+        Map<Integer, Character> currentLine = new HashMap<>();
+        prevLine.put(x, '.');
+        for(var toMove : wantsToMove) {
+            currentLine = new HashMap<>();
+            for(int mx: toMove) {
+                currentLine.put(mx, data[iY][mx]);
+                data[iY][mx] = prevLine.getOrDefault(mx, '.');
+            }
+            for(int mx: prevLine.keySet()) {
+                data[iY][mx] = prevLine.get(mx);
+            }
+            prevLine = currentLine;
+            ++iY;
+        }
+        for(int mx: prevLine.keySet()) {
+            data[iY][mx] = prevLine.get(mx);
+        }
     }
 
     public static void main(String[] args) {
