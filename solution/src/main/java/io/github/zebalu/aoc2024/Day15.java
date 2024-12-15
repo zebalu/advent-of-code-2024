@@ -10,7 +10,7 @@ public class Day15 extends AbstractDay {
     private char[][] data;
     private final String move;
     private final String gridString;
-    private final List<List<Integer>> wantsToMove=new ArrayList<>();
+    private final List<List<Integer>> wantsToMove = new ArrayList<>();
     private int width;
     private int height;
     private int robotX;
@@ -87,10 +87,10 @@ public class Day15 extends AbstractDay {
 
     private int findFirstHorizontalSpace(IntUnaryOperator direction) {
         int iX = robotX;
-        while (0<iX && iX < width) {
+        while (0 < iX && iX < width) {
             if (data[robotY][iX] == '.') {
                 return iX;
-            } else if(data[robotY][iX] == '#') {
+            } else if (data[robotY][iX] == '#') {
                 return -1;
             } else {
                 iX = direction.applyAsInt(iX);
@@ -142,16 +142,11 @@ public class Day15 extends AbstractDay {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < line.length(); i++) {
             char c = line.charAt(i);
-            if (c == '#') {
-                sb.append("##");
-            } else if (c == 'O') {
-                sb.append("[]");
-            } else if (c == '.') {
-                sb.append("..");
-            } else if (c == '@') {
-                sb.append("@.");
-            } else {
-                throw new IllegalArgumentException("invalid character: " + c);
+            switch (c) {
+                case '#' -> sb.append("##");
+                case 'O' -> sb.append("[]");
+                case '.' -> sb.append("..");
+                case '@' -> sb.append("@.");
             }
         }
         return sb.toString();
@@ -209,28 +204,26 @@ public class Day15 extends AbstractDay {
         wantsToMove.clear();
         wantsToMove.add(List.of(robotX));
         int iY = direction.applyAsInt(robotY);
-        while (0 < iY && iY < height) {
-            Optional<Boolean> canMove = checkVerticalMoves(iY);
-            if (canMove.isPresent()) {
-                return canMove.get();
-            }
+        Optional<Boolean> canMove = Optional.empty();
+        while (0 < iY && iY < height && canMove.isEmpty()) {
+            canMove = checkVerticalMoves(iY);
             iY = direction.applyAsInt(iY);
         }
-        return false;
+        return canMove.orElse(false);
     }
 
     private SequencedSet<Integer> findNextVerticalMoves(int iY) {
         List<Integer> prevMoves = wantsToMove.getLast();
         SequencedSet<Integer> nextmoves = new LinkedHashSet<>();
         for (int mx : prevMoves) {
-            if(data[iY][mx] == ']') {
-                nextmoves.add(mx-1);
+            if (data[iY][mx] == ']') {
+                nextmoves.add(mx - 1);
             }
-            if(data[iY][mx] != '.') {
+            if (data[iY][mx] != '.') {
                 nextmoves.add(mx);
             }
-            if(data[iY][mx] == '[') {
-                nextmoves.add(mx+1);
+            if (data[iY][mx] == '[') {
+                nextmoves.add(mx + 1);
             }
         }
         return nextmoves;

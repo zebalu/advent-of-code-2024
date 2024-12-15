@@ -15,7 +15,7 @@ public class Day15Test {
                 ()->Assertions.assertEquals(example.part2, Long.parseLong(day15.part2())));
     }
 
-    static final String EXAMPLE_1 = """
+    private static final String EXAMPLE_1 = """
             ##########
             #..O..O.O#
             #......O.#
@@ -61,8 +61,22 @@ public class Day15Test {
             
             <vv<<^^<<^""";
 
+    private static final String MY_ISSUE = """
+            ########
+            #......#
+            #..O...#
+            #..O...#
+            #@O.O..#
+            #.O..O.#
+            #..#...#
+            ########
+            
+            >><<^^^^^^>>>>>>>>>vvv
+            >>>v<<<>^<<^^^^<<<v""";
+
     private enum Example {
-        E1(EXAMPLE_1, 10092, 9021), E2(EXAMPLE_2, 2028, 1751), E3(EXAMPLE_3, 908, 718);
+        E1(EXAMPLE_1, 10092, 9021), E2(EXAMPLE_2, 2028, 1751), E3(EXAMPLE_3, 908, 718),
+        MI(MY_ISSUE, 2218,2936);
 
         private final String text;
         private final long part1;
