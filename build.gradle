@@ -11,24 +11,27 @@ allprojects {
             vendor = JvmVendorSpec.BELLSOFT
         }
     }
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        testImplementation platform('org.junit:junit-bom:5.10.0')
+        testImplementation 'org.junit.jupiter:junit-jupiter'
+    }
+
+    tasks.named('test', Test) {
+        useJUnitPlatform()
+    }
 }
 
 group = 'io.gizhub.zebalu.aoc2024'
 version = '1.0-SNAPSHOT'
 
-repositories {
-    mavenCentral()
-}
-
-application {
-    mainClass = 'io.github.zebalu.aoc2024.main.AdventOfCode2024'
-}
-
 dependencies {
     implementation project (':solution')
     implementation project (':downloader')
-    testImplementation platform('org.junit:junit-bom:5.10.0')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
 }
 
 test {
