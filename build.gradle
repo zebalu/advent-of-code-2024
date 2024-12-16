@@ -29,6 +29,10 @@ allprojects {
 group = 'io.gizhub.zebalu.aoc2024'
 version = '1.0-SNAPSHOT'
 
+application {
+    mainClass = 'io.github.zebalu.aoc2024.main.AdventOfCode2024'
+}
+
 dependencies {
     implementation project (':solution')
     implementation project (':downloader')
