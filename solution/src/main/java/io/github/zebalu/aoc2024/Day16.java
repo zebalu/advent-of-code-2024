@@ -53,10 +53,11 @@ public class Day16 extends AbstractDay {
     private void findPaths() {
         Queue<State> priorityQueue = new PriorityQueue<>(State.PRICE_COMPARATOR);
         Map<Coord, Set<Coord>> bests = new HashMap<>();
-        seen.put(new Raindeer(start, new Coord(1, 0)), 0);
-        priorityQueue.add(new State(new Raindeer(start, new Coord(1, 0)), 0, new HashSet<>(List.of(start))));
-        boolean weAreOverBestPathes = false;
-        while (!priorityQueue.isEmpty() && !weAreOverBestPathes) {
+        Raindeer startDeer = new Raindeer(start, Coord.EAST);
+        seen.put(startDeer, 0);
+        priorityQueue.add(new State(startDeer, 0, new HashSet<>(List.of(start))));
+        boolean weAreOverBestPaths = false;
+        while (!priorityQueue.isEmpty() && !weAreOverBestPaths) {
             State state = priorityQueue.poll();
             for (State next : state.next()) {
                 if (isFree(next.raindeer.position) && next.price <= seen.getOrDefault(next.raindeer, Integer.MAX_VALUE)) {
@@ -65,7 +66,7 @@ public class Day16 extends AbstractDay {
                         seen.put(next.raindeer, next.price);
                         if (end.equals(next.raindeer.position)) {
                             if (minPrice < next.price) {
-                                weAreOverBestPathes = true;
+                                weAreOverBestPaths = true;
                             }
                             minPrice = Math.min(minPrice, next.price);
                             bestPathPoints.addAll(next.visited);
@@ -85,6 +86,7 @@ public class Day16 extends AbstractDay {
 
 
     private record Coord(int x, int y) {
+        static final Coord EAST = new Coord(1, 0);
         Coord add(Coord other) {
             return new Coord(this.x + other.x, this.y + other.y);
         }
