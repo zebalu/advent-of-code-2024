@@ -37,7 +37,7 @@ public class Day16 extends AbstractDay {
         }
         start = s;
         end = e;
-        findPathes();
+        findPaths();
     }
 
     @Override
@@ -50,8 +50,9 @@ public class Day16 extends AbstractDay {
         return Integer.toString(bestPathPoints.size());
     }
 
-    private void findPathes() {
+    private void findPaths() {
         Queue<State> priorityQueue = new PriorityQueue<>(State.PRICE_COMPARATOR);
+        Map<Coord, Set<Coord>> bests = new HashMap<>();
         seen.put(new Raindeer(start, new Coord(1, 0)), 0);
         priorityQueue.add(new State(new Raindeer(start, new Coord(1, 0)), 0, new HashSet<>(List.of(start))));
         boolean weAreOverBestPathes = false;
@@ -59,14 +60,19 @@ public class Day16 extends AbstractDay {
             State state = priorityQueue.poll();
             for (State next : state.next()) {
                 if (isFree(next.raindeer.position) && next.price <= seen.getOrDefault(next.raindeer, Integer.MAX_VALUE)) {
-                    priorityQueue.add(next);
-                    seen.put(next.raindeer, next.price);
-                    if (end.equals(next.raindeer.position)) {
-                        if (minPrice < next.price) {
-                            weAreOverBestPathes = true;
+                    if (next.price < seen.getOrDefault(next.raindeer, Integer.MAX_VALUE)) {
+                        priorityQueue.add(next);
+                        seen.put(next.raindeer, next.price);
+                        if (end.equals(next.raindeer.position)) {
+                            if (minPrice < next.price) {
+                                weAreOverBestPathes = true;
+                            }
+                            minPrice = Math.min(minPrice, next.price);
+                            bestPathPoints.addAll(next.visited);
                         }
-                        minPrice = Math.min(minPrice, next.price);
-                        bestPathPoints.addAll(next.visited);
+                        bests.put(next.raindeer.position, next.visited);
+                    } else {
+                        bests.get(next.raindeer.position).addAll(next.visited);
                     }
                 }
             }
