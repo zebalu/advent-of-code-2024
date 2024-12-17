@@ -3,7 +3,6 @@ package io.github.zebalu.aoc2024;
 import io.github.zebalu.aoc2024.utils.IOUtil;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Day17 extends AbstractDay {
     private final int regA;
@@ -33,24 +32,26 @@ public class Day17 extends AbstractDay {
 
     @Override
     public String part2() {
-        List<Integer> remainingProgram = new ArrayList<>(instr);
-        List<Integer> program = new ArrayList<>();
-        long A = 0L;
-        while (!remainingProgram.isEmpty()) {
-            --A;
-            program.addFirst(remainingProgram.removeLast());
-            String pString = program.stream().map(Long::toString).collect(Collectors.joining(","));
-            Computer computer;
-            do {
-                ++A;
-                computer = new Computer(A, regB, regC, instr);
-                computer.execute(true, program);
-            } while (!computer.print().equals(pString));
-            if (!remainingProgram.isEmpty()) {
-                A = A << 3;
+        Queue<State> queue = new PriorityQueue<>(State.REGISTER_COMPARATOR);
+        queue.add(new State(0, 0));
+        long min = Long.MAX_VALUE;
+        while (!queue.isEmpty() && min == Long.MAX_VALUE) {
+            State state = queue.poll();
+            List<Integer> sufix = instr.subList(instr.size()-state.outputSize-1, instr.size());
+            long nextRegisterABase = state.registerA << 3;
+            for(long i=0L; i<8L; ++i) {
+                long nextRegisterA = nextRegisterABase | i;
+                Computer computer = new Computer(nextRegisterA, regB, regC, instr);
+                computer.execute();
+                if(computer.outPutMatches(sufix)) {
+                    if(instr.size() == sufix.size()) {
+                        min = Math.min(min, nextRegisterA);
+                    }
+                    queue.add(new State(nextRegisterA, state.outputSize+1));
+                }
             }
         }
-        return Long.toString(A);
+        return Long.toString(min);
     }
 
     private static class Computer {
@@ -70,10 +71,6 @@ public class Day17 extends AbstractDay {
         }
 
         void execute() {
-            execute(false, List.of());
-        }
-
-        void execute(boolean earlyStop, List<Integer> expected) {
             while (ip < opcodes.size()) {
                 int litOp = opcodes.get(ip + 1);
                 long combOp = getCombo(opcodes.get(ip + 1));
@@ -89,9 +86,6 @@ public class Day17 extends AbstractDay {
                         if (A != 0) {
                             ip = litOp;
                             skipIncrease = true;
-                            if (earlyStop && !outPutMatches(expected)) {
-                                return;
-                            }
                         }
                     }
                     case 4 -> B = B ^ C;
@@ -112,15 +106,7 @@ public class Day17 extends AbstractDay {
         }
 
         boolean outPutMatches(List<Integer> expected) {
-            if (out.size() > expected.size()) {
-                return false;
-            }
-            for (int i = 0; i < out.size(); i++) {
-                if (!out.get(i).equals(expected.get(i))) {
-                    return false;
-                }
-            }
-            return true;
+            return expected.equals(out);
         }
 
         long getCombo(int value) {
@@ -137,6 +123,10 @@ public class Day17 extends AbstractDay {
         String print() {
             return String.join(",", out.stream().map(Long::toString).toList());
         }
+    }
+
+    private record State(long registerA, int outputSize) {
+        static final Comparator<State> REGISTER_COMPARATOR = Comparator.comparingLong(State::registerA);
     }
 
     public static void main(String[] args) {
