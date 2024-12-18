@@ -28,27 +28,27 @@ public class Day18 extends AbstractDay {
     public String part2() {
         Set<Coord> positions = new HashSet<>(fallingBytes.subList(0, 1024));
         int cuttingIndex = Integer.MIN_VALUE;
-        Set<Coord> path = requiredSteps(positions);
+        Map2D path = requiredSteps(positions);
         for (int i = 1024; i < fallingBytes.size() && cuttingIndex == Integer.MIN_VALUE; ++i) {
             Coord next = fallingBytes.get(i);
             positions.add(fallingBytes.get(i));
-            if (path.contains(next)) {
+            if (path.isMarked(next)) {
                 path = requiredSteps(positions);
             }
-            if(path.isEmpty()) {
+            if(path.size()==0) {
                 cuttingIndex = i;
             }
         }
         return fallingBytes.get(cuttingIndex).toString();
     }
 
-    private Set<Coord> requiredSteps(Set<Coord> positions) {
+    private Map2D requiredSteps(Set<Coord> positions) {
         Coord start = new Coord(0, 0);
         Coord end = new Coord(width, height);
         Queue<Steps> queue = new ArrayDeque<>();
         Set<Coord> visited = new HashSet<>();
         visited.add(start);
-        queue.add(new Steps(start, Set.of()));
+        queue.add(new Steps(start, new Map2D(height+1, width+1)));
         while (!queue.isEmpty()) {
             Steps cur = queue.poll();
             if (cur.position.equals(end)) {
@@ -57,13 +57,13 @@ public class Day18 extends AbstractDay {
             for (var neighbour : cur.position.neighbours()) {
                 if (!visited.contains(neighbour) && isValid(neighbour) && !positions.contains(neighbour)) {
                     visited.add(neighbour);
-                    Set<Coord> nh = new HashSet<>(cur.history);
-                    nh.add(neighbour);
+                    Map2D nh = cur.history.copy();
+                    nh.mark(neighbour);
                     queue.add(new Steps(neighbour, nh));
                 }
             }
         }
-        return Set.of();
+        return new Map2D(height+1, width+1);
     }
 
     boolean isValid(Coord coord) {
@@ -87,7 +87,38 @@ public class Day18 extends AbstractDay {
 
     }
 
-    private record Steps(Coord position, Set<Coord> history) {
+    private record Steps(Coord position, Map2D history) {
+    }
+
+    private static class Map2D {
+        BitSet[] map;
+        public Map2D(int height, int width) {
+            map = new BitSet[height];
+            for(int i = 0; i < height; ++i) {
+                map[i] = new BitSet(width);
+            }
+        }
+
+        boolean isMarked(Coord coord) {
+            return map[coord.y].get(coord.x);
+        }
+
+        void mark(Coord coord) {
+            map[coord.y].set(coord.x);
+        }
+
+        int size() {
+            return Arrays.stream(map).mapToInt(BitSet::cardinality).sum();
+        }
+
+        Map2D copy() {
+            Map2D copy = new Map2D(map.length, map[0].length());
+            for(int i = 0; i < map.length; ++i) {
+                copy.map[i] = (BitSet) map[i].clone();
+            }
+            return copy;
+        }
+
     }
 
     public static void main(String[] args) {
