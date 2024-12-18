@@ -20,18 +20,20 @@ public class Day18 extends AbstractDay {
 
     @Override
     public String part1() {
-        Set<Coord> positions = new HashSet<>(fallingBytes.subList(0, 1024));
+        Map2D positions = new Map2D(height+1, width+1);
+        fallingBytes.stream().limit(1024).forEach(positions::mark);
         return Integer.toString(requiredSteps(positions).size());
     }
 
     @Override
     public String part2() {
-        Set<Coord> positions = new HashSet<>(fallingBytes.subList(0, 1024));
+        Map2D positions = new Map2D(height+1, width+1);
+        fallingBytes.stream().limit(1024).forEach(positions::mark);
         int cuttingIndex = Integer.MIN_VALUE;
         Map2D path = requiredSteps(positions);
         for (int i = 1024; i < fallingBytes.size() && cuttingIndex == Integer.MIN_VALUE; ++i) {
             Coord next = fallingBytes.get(i);
-            positions.add(fallingBytes.get(i));
+            positions.mark(fallingBytes.get(i));
             if (path.isMarked(next)) {
                 path = requiredSteps(positions);
             }
@@ -42,12 +44,12 @@ public class Day18 extends AbstractDay {
         return fallingBytes.get(cuttingIndex).toString();
     }
 
-    private Map2D requiredSteps(Set<Coord> positions) {
+    private Map2D requiredSteps(Map2D positions) {
         Coord start = new Coord(0, 0);
         Coord end = new Coord(width, height);
         Queue<Steps> queue = new ArrayDeque<>();
-        Set<Coord> visited = new HashSet<>();
-        visited.add(start);
+        Map2D visited = new Map2D(height+1, width+1);
+        visited.mark(start);
         queue.add(new Steps(start, new Map2D(height+1, width+1)));
         while (!queue.isEmpty()) {
             Steps cur = queue.poll();
@@ -55,8 +57,8 @@ public class Day18 extends AbstractDay {
                 return cur.history;
             }
             for (var neighbour : cur.position.neighbours()) {
-                if (!visited.contains(neighbour) && isValid(neighbour) && !positions.contains(neighbour)) {
-                    visited.add(neighbour);
+                if (!visited.isMarked(neighbour) && isValid(neighbour) && !positions.isMarked(neighbour)) {
+                    visited.mark(neighbour);
                     Map2D nh = cur.history.copy();
                     nh.mark(neighbour);
                     queue.add(new Steps(neighbour, nh));
@@ -99,7 +101,14 @@ public class Day18 extends AbstractDay {
             }
         }
 
+        private Map2D(BitSet[] map) {
+            this.map = map;
+        }
+
         boolean isMarked(Coord coord) {
+            if(coord.y<0||coord.y>=map.length || coord.x<0||coord.x>=map[0].size()) {
+                return false;
+            }
             return map[coord.y].get(coord.x);
         }
 
@@ -112,11 +121,11 @@ public class Day18 extends AbstractDay {
         }
 
         Map2D copy() {
-            Map2D copy = new Map2D(map.length, map[0].length());
+            BitSet[] copy = new BitSet[map.length];
             for(int i = 0; i < map.length; ++i) {
-                copy.map[i] = (BitSet) map[i].clone();
+                copy[i] = (BitSet) map[i].clone();
             }
-            return copy;
+            return new Map2D(copy);
         }
 
     }
