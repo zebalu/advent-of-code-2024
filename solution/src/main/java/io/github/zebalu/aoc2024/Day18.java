@@ -27,18 +27,21 @@ public class Day18 extends AbstractDay {
 
     @Override
     public String part2() {
-        Map2D positions = new Map2D(height+1, width+1);
-        fallingBytes.stream().limit(1024).forEach(positions::mark);
+        int min = 0;
+        int max = fallingBytes.size();
         int cuttingIndex = Integer.MIN_VALUE;
-        Map2D path = requiredSteps(positions);
-        for (int i = 1024; i < fallingBytes.size() && cuttingIndex == Integer.MIN_VALUE; ++i) {
-            Coord next = fallingBytes.get(i);
-            positions.mark(fallingBytes.get(i));
-            if (path.isMarked(next)) {
-                path = requiredSteps(positions);
-            }
+        while(cuttingIndex == Integer.MIN_VALUE) {
+            int mid = (min + max)/2;
+            Map2D positions = new Map2D(height+1, width+1);
+            fallingBytes.stream().limit(mid).forEach(positions::mark);
+            Map2D path = requiredSteps(positions);
             if(path.size()==0) {
-                cuttingIndex = i;
+                max = mid-1;
+            } else {
+                min = mid;
+            }
+            if(max == min) {
+                cuttingIndex = min;
             }
         }
         return fallingBytes.get(cuttingIndex).toString();
