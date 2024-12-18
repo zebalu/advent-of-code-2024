@@ -32,16 +32,17 @@ public class Day18 extends AbstractDay {
         int cuttingIndex = Integer.MIN_VALUE;
         while(cuttingIndex == Integer.MIN_VALUE) {
             int mid = (min + max)/2;
-            Map2D positions = new Map2D(height+1, width+1);
-            fallingBytes.stream().limit(mid).forEach(positions::mark);
-            Map2D path = requiredSteps(positions);
-            if(path.size()==0) {
-                max = mid-1;
+            if(mid == min) {
+                cuttingIndex = max;
             } else {
-                min = mid;
-            }
-            if(max == min) {
-                cuttingIndex = min;
+                Map2D positions = new Map2D(height + 1, width + 1);
+                fallingBytes.stream().limit(mid + 1).forEach(positions::mark);
+                Map2D path = requiredSteps(positions);
+                if (path.size() == 0) {
+                    max = mid;
+                } else {
+                    min = mid;
+                }
             }
         }
         return fallingBytes.get(cuttingIndex).toString();
