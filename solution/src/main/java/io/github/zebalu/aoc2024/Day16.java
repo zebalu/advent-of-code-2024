@@ -1,6 +1,7 @@
 package io.github.zebalu.aoc2024;
 
 import io.github.zebalu.aoc2024.utils.IOUtil;
+import io.github.zebalu.aoc2024.utils.Map2D;
 
 import java.util.*;
 
@@ -10,7 +11,7 @@ public class Day16 extends AbstractDay {
     private final int width;
     private final Coord start;
     private final Coord end;
-    private final Set<Coord> bestPathPoints = new HashSet<>();
+    private final Map2D bestPathPoints;
     private final Map<Raindeer, Integer> seen = new HashMap<>();
 
     private int minPrice = Integer.MAX_VALUE;
@@ -37,6 +38,7 @@ public class Day16 extends AbstractDay {
         }
         start = s;
         end = e;
+        bestPathPoints = new Map2D(width, height);
         findPaths();
     }
 
@@ -52,10 +54,12 @@ public class Day16 extends AbstractDay {
 
     private void findPaths() {
         Queue<State> priorityQueue = new PriorityQueue<>(State.PRICE_COMPARATOR);
-        Map<Coord, Set<Coord>> bests = new HashMap<>();
+        Map<Coord, Map2D> bests = new HashMap<>();
         Raindeer startDeer = new Raindeer(start, Coord.EAST);
         seen.put(startDeer, 0);
-        priorityQueue.add(new State(startDeer, 0, new HashSet<>(List.of(start))));
+        Map2D startMap = new Map2D(width, height);
+        startMap.mark(start.x, start.y);
+        priorityQueue.add(new State(startDeer, 0, startMap));
         boolean weAreOverBestPaths = false;
         while (!priorityQueue.isEmpty() && !weAreOverBestPaths) {
             State state = priorityQueue.poll();
@@ -69,11 +73,11 @@ public class Day16 extends AbstractDay {
                                 weAreOverBestPaths = true;
                             }
                             minPrice = Math.min(minPrice, next.price);
-                            bestPathPoints.addAll(next.visited);
+                            bestPathPoints.markAll(next.visited);
                         }
                         bests.put(next.raindeer.position, next.visited);
                     } else {
-                        bests.get(next.raindeer.position).addAll(next.visited);
+                        bests.get(next.raindeer.position).markAll(next.visited);
                     }
                 }
             }
@@ -106,7 +110,7 @@ public class Day16 extends AbstractDay {
         }
     }
 
-    private record State(Raindeer raindeer, int price, Set<Coord> visited) {
+    private record State(Raindeer raindeer, int price, Map2D visited) {
         static Comparator<State> PRICE_COMPARATOR = Comparator.comparing(State::price);
 
         State turnLeft() {
@@ -119,8 +123,8 @@ public class Day16 extends AbstractDay {
 
         State step() {
             Raindeer step = raindeer.step();
-            var v = new HashSet<>(visited);
-            v.add(step.position);
+            var v = visited.clone();
+            v.mark(step.position.x, step.position.y);
             return new State(step, price + 1, v);
         }
 

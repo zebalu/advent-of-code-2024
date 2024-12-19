@@ -1,6 +1,7 @@
 package io.github.zebalu.aoc2024;
 
 import io.github.zebalu.aoc2024.utils.IOUtil;
+import io.github.zebalu.aoc2024.utils.Map2D;
 
 import java.util.*;
 
@@ -21,7 +22,7 @@ public class Day18 extends AbstractDay {
     @Override
     public String part1() {
         Map2D positions = new Map2D(height+1, width+1);
-        fallingBytes.stream().limit(1024).forEach(positions::mark);
+        fallingBytes.stream().limit(1024).forEach(c->positions.mark(c.x, c.y));
         return Integer.toString(requiredSteps(positions).size());
     }
 
@@ -36,7 +37,7 @@ public class Day18 extends AbstractDay {
                 cuttingIndex = max;
             } else {
                 Map2D positions = new Map2D(height + 1, width + 1);
-                fallingBytes.stream().limit(mid + 1).forEach(positions::mark);
+                fallingBytes.stream().limit(mid + 1).forEach(c->positions.mark(c.x, c.y));
                 Map2D path = requiredSteps(positions);
                 if (path.size() == 0) {
                     max = mid;
@@ -53,7 +54,7 @@ public class Day18 extends AbstractDay {
         Coord end = new Coord(width, height);
         Queue<Steps> queue = new ArrayDeque<>();
         Map2D visited = new Map2D(height+1, width+1);
-        visited.mark(start);
+        visited.mark(start.x, start.y);
         queue.add(new Steps(start, new Map2D(height+1, width+1)));
         while (!queue.isEmpty()) {
             Steps cur = queue.poll();
@@ -61,10 +62,10 @@ public class Day18 extends AbstractDay {
                 return cur.history;
             }
             for (var neighbour : cur.position.neighbours()) {
-                if (!visited.isMarked(neighbour) && isValid(neighbour) && !positions.isMarked(neighbour)) {
-                    visited.mark(neighbour);
-                    Map2D nh = cur.history.copy();
-                    nh.mark(neighbour);
+                if (!visited.isMarked(neighbour.x, neighbour.y) && isValid(neighbour) && !positions.isMarked(neighbour.x, neighbour.y)) {
+                    visited.mark(neighbour.x, neighbour.y);
+                    Map2D nh = cur.history.clone();
+                    nh.mark(neighbour.x, neighbour.y);
                     queue.add(new Steps(neighbour, nh));
                 }
             }
@@ -94,44 +95,6 @@ public class Day18 extends AbstractDay {
     }
 
     private record Steps(Coord position, Map2D history) {
-    }
-
-    private static class Map2D {
-        BitSet[] map;
-        public Map2D(int height, int width) {
-            map = new BitSet[height];
-            for(int i = 0; i < height; ++i) {
-                map[i] = new BitSet(width);
-            }
-        }
-
-        private Map2D(BitSet[] map) {
-            this.map = map;
-        }
-
-        boolean isMarked(Coord coord) {
-            if(coord.y<0||coord.y>=map.length || coord.x<0||coord.x>=map[0].size()) {
-                return false;
-            }
-            return map[coord.y].get(coord.x);
-        }
-
-        void mark(Coord coord) {
-            map[coord.y].set(coord.x);
-        }
-
-        int size() {
-            return Arrays.stream(map).mapToInt(BitSet::cardinality).sum();
-        }
-
-        Map2D copy() {
-            BitSet[] copy = new BitSet[map.length];
-            for(int i = 0; i < map.length; ++i) {
-                copy[i] = (BitSet) map[i].clone();
-            }
-            return new Map2D(copy);
-        }
-
     }
 
     public static void main(String[] args) {
