@@ -33,10 +33,10 @@ public class Day19 extends AbstractDay {
 
     private boolean isPossible(String design) {
         for (String towel : towels) {
-            if (design.startsWith(towel)) {
-                if (design.length() == towel.length() || isPossible(design.substring(towel.length()))) {
-                    return true;
-                }
+            if(design.equals(towel)) {
+                return true;
+            } else if (design.startsWith(towel) && isPossible(design.substring(towel.length()))) {
+                return true;
             }
         }
         return false;
@@ -52,12 +52,10 @@ public class Day19 extends AbstractDay {
         }
         long count = 0L;
         for (String towel : towels) {
-            if (design.startsWith(towel)) {
-                if (design.length() == towel.length()) {
-                    ++count;
-                } else {
-                    count += countPossible(design.substring(towel.length()), memory);
-                }
+            if (design.equals(towel)) {
+                ++count;
+            } else if (design.startsWith(towel)) {
+                count += countPossible(design.substring(towel.length()), memory);
             }
         }
         memory.put(design, count);
