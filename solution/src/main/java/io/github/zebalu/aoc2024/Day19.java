@@ -11,6 +11,7 @@ public class Day19 extends AbstractDay {
     public Day19() {
         this(IOUtil.readInput(19));
     }
+
     public Day19(String input) {
         super(input, "Linen Layout", 19);
         var data = IOUtil.groupByEmptyLines(INPUT);
@@ -21,13 +22,13 @@ public class Day19 extends AbstractDay {
     @Override
     public String part1() {
         long count = designs.stream().filter(this::isPossible).count();
-        return ""+count;
+        return "" + count;
     }
 
     @Override
     public String part2() {
         long count = designs.stream().filter(this::isPossible).mapToLong(this::countPossible).sum();
-        return ""+count;
+        return "" + count;
     }
 
     private boolean isPossible(String design) {
