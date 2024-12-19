@@ -13,10 +13,6 @@ public class Map2D implements Cloneable {
         }
     }
 
-    private Map2D(BitSet[] map) {
-        this.map = map;
-    }
-
     public boolean isMarked(int x, int y) {
         if (y < 0 || y >= map.length || x < 0 || x >= map[0].size()) {
             return false;
