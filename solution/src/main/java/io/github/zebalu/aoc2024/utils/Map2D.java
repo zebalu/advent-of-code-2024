@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.BitSet;
 
 public class Map2D implements Cloneable {
-    private final BitSet[] map;
+    private BitSet[] map;
 
     public Map2D(int width, int height) {
         map = new BitSet[height];
@@ -53,6 +53,7 @@ public class Map2D implements Cloneable {
     public Map2D clone() {
         try {
             Map2D clone = (Map2D) super.clone();
+            clone.map = new BitSet[map.length];
             for (int i = 0; i < map.length; ++i) {
                 clone.map[i] = (BitSet) map[i].clone();
             }
