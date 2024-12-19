@@ -7,6 +7,7 @@ import java.util.*;
 public class Day19 extends AbstractDay {
     private final List<String> towels;
     private final List<String> designs;
+    private final Map<String, Long> memory = new HashMap<>();
 
     public Day19() {
         this(IOUtil.readInput(19));
@@ -17,36 +18,22 @@ public class Day19 extends AbstractDay {
         var data = IOUtil.groupByEmptyLines(INPUT);
         towels = Arrays.asList(data.getFirst().getFirst().split(", "));
         designs = data.getLast();
+        designs.forEach(this::countPossible);
     }
 
     @Override
     public String part1() {
-        long count = designs.stream().filter(this::isPossible).count();
+        long count = designs.stream().filter(d->memory.get(d)>0L).count();
         return Long.toString(count);
     }
 
     @Override
     public String part2() {
-        long count = designs.stream().filter(this::isPossible).mapToLong(this::countPossible).sum();
+        long count = designs.stream().mapToLong(memory::get).sum();
         return Long.toString(count);
     }
 
-    private boolean isPossible(String design) {
-        for (String towel : towels) {
-            if(design.equals(towel)) {
-                return true;
-            } else if (design.startsWith(towel) && isPossible(design.substring(towel.length()))) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private long countPossible(String design) {
-        return countPossible(design, new HashMap<>());
-    }
-
-    private long countPossible(String design, Map<String, Long> memory) {
         if (memory.containsKey(design)) {
             return memory.get(design);
         }
@@ -55,7 +42,7 @@ public class Day19 extends AbstractDay {
             if (design.equals(towel)) {
                 ++count;
             } else if (design.startsWith(towel)) {
-                count += countPossible(design.substring(towel.length()), memory);
+                count += countPossible(design.substring(towel.length()));
             }
         }
         memory.put(design, count);
