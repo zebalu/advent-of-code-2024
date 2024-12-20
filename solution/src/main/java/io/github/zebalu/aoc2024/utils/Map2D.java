@@ -49,7 +49,7 @@ public class Map2D implements Cloneable {
     public Map2D clone() {
         try {
             Map2D clone = (Map2D) super.clone();
-            clone.map = new BitSet[map.length];
+            clone.map = map.clone();
             for (int i = 0; i < map.length; ++i) {
                 clone.map[i] = (BitSet) map[i].clone();
             }
