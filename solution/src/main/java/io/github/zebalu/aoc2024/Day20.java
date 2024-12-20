@@ -47,7 +47,7 @@ public class Day20 extends AbstractDay {
         return Integer.toString(sum);
     }
 
-    private int countWithCheats(Set<Cheat> cheats) {
+    private int countWithCheats(List<Cheat> cheats) {
         int sum = 0;
         for (var ch : cheats) {
             int cost = fromStart.get(ch.first()) + ch.length() + fromEnd.get(ch.last());
@@ -75,8 +75,8 @@ public class Day20 extends AbstractDay {
         return priceMap;
     }
 
-    private Set<Cheat> findCheats(int distance) {
-        Set<Cheat> cheats = new HashSet<>();
+    private List<Cheat> findCheats(int distance) {
+        List<Cheat> cheats = new ArrayList<>();
         for(int y=0; y<height; y++) {
             for(int x=0; x<width; x++) {
                 Coord c = new Coord(x, y);
