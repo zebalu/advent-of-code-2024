@@ -6,6 +6,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Day21 extends AbstractDay {
+    private static final Coord KEY_PAD_START = new Coord(2, 3);
+    private static final Coord DIR_PAD_START = new Coord(2, 0);
     private static final char[][] KEY_PAD = new char[][]{
             new char[]{'7', '8', '9'},
             new char[]{'4', '5', '6'},
@@ -86,7 +88,7 @@ public class Day21 extends AbstractDay {
         }
         char c = code.charAt(0);
         List<String> collect = new ArrayList<>();
-        for (var p : shortestsToGoal(start, c, KEY_PAD)) {
+        for (var p : shortestsToGoal(start, c, pad)) {
             collect.addAll(turnToDirections(code.substring(1), p.end, core + p.steps + "A", pad));
         }
         int minLength = collect.stream().mapToInt(String::length).min().orElseThrow();
@@ -105,7 +107,7 @@ public class Day21 extends AbstractDay {
         long sum = 0;
         for (String code : toType) {
             long myBest = Long.MAX_VALUE;
-            List<String> robot1Moves = turnToDirections(code, new Coord(2, 3), "", KEY_PAD);
+            List<String> robot1Moves = turnToDirections(code, KEY_PAD_START, "", KEY_PAD);
             for (String robot1Move : robot1Moves) {
                 long countP = countPushes(robot1Move, depth);
                 myBest = Math.min(myBest, countP);
@@ -123,7 +125,7 @@ public class Day21 extends AbstractDay {
         if (roadDepthMap.containsKey(key)) {
             return roadDepthMap.get(key);
         }
-        Coord position = new Coord(2, 0);
+        Coord position = DIR_PAD_START;
         long sum = 0L;
         for (char c : robot1Move.toCharArray()) {
             long min = Long.MAX_VALUE;
