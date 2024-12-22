@@ -10,6 +10,7 @@ public class Day22 extends AbstractDay {
     private static final long MULTIPLIER2 = 2048L;
     private static final long DIVISOR = 32L;
     private static final long STEP_COUNT = 2_000L;
+    
     private final long[] secretNumbers;
 
     public Day22() {
@@ -27,19 +28,21 @@ public class Day22 extends AbstractDay {
         for (long sn : secretNumbers) {
             sum += generateNextNumber(sn);
         }
-        return "" + sum;
+        return Long.toString(sum);
     }
 
     @Override
     public String part2() {
         Map<List<Long>, Long> summingMap = new HashMap<>();
         for (long sn : secretNumbers) {
-            generateSequences(sn).forEach(
-                    (key, value) -> summingMap.compute(key, (_, v) -> v == null ? value : v + value)
-            );
+            generateSequences(sn)
+                    .forEach(
+                            (key, value) ->
+                                    summingMap.compute(key, (_, v) -> v == null ? value : v + value)
+                    );
         }
-        long res = summingMap.values().stream().mapToLong(Long::longValue).max().orElseThrow();
-        return "" + res;
+        long max = summingMap.values().stream().mapToLong(Long::longValue).max().orElseThrow();
+        return Long.toString(max);
     }
 
     private long nextNumber(long seed) {
@@ -66,16 +69,14 @@ public class Day22 extends AbstractDay {
         Map<List<Long>, Long> result = new HashMap<>();
         long prevSeed = seed;
         long prevPrice = seed % 10L;
-        List<Long> collector = new LinkedList<>();
+        List<Long> collector = new ArrayList<>(); //LinkedList<>();
         for (int i = 0; i < STEP_COUNT; i++) {
             long nextSeed = nextNumber(prevSeed);
             long price = nextSeed % 10L;
             long diff = price - prevPrice;
             collector.add(diff);
             if (collector.size() == 4) {
-                if (!result.containsKey(collector)) {
-                    result.put(new ArrayList<>(collector), price);
-                }
+                result.putIfAbsent(new ArrayList<>(collector), price);
                 collector.removeFirst();
             }
             prevPrice = price;
