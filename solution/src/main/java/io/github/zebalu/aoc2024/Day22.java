@@ -3,14 +3,15 @@ package io.github.zebalu.aoc2024;
 import io.github.zebalu.aoc2024.utils.IOUtil;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Day22 extends AbstractDay {
     private static final long MODULO = 16_777_216L;
-    private static final long MULTIPLIER1 = 64L;
-    private static final long MULTIPLIER2 = 2048L;
-    private static final long DIVISOR = 32L;
+    private static final int MULTIPLIER1_STEPS_LEFT = 6; /// multiply by 64L;
+    private static final int MULTIPLIER2_STEPS_LEFT = 11; /// multiply by 2048L;
+    private static final int DIVISOR_STEPS_RIGHT = 5; /// divide by 32
     private static final long STEP_COUNT = 2_000L;
-    
+
     private final long[] secretNumbers;
 
     public Day22() {
@@ -26,21 +27,21 @@ public class Day22 extends AbstractDay {
     public String part1() {
         long sum = 0L;
         for (long sn : secretNumbers) {
-            sum += generateNextNumber(sn);
+            sum += generate2000thNumber(sn);
         }
         return Long.toString(sum);
     }
 
     @Override
     public String part2() {
-        Map<List<Long>, Long> summingMap = new HashMap<>();
-        for (long sn : secretNumbers) {
+        Map<List<Long>, Long> summingMap = new ConcurrentHashMap<>();
+        Arrays.stream(secretNumbers).parallel().forEach(sn ->
             generateSequences(sn)
                     .forEach(
                             (key, value) ->
                                     summingMap.compute(key, (_, v) -> v == null ? value : v + value)
-                    );
-        }
+                    )
+        );
         long max = summingMap.values().stream().mapToLong(Long::longValue).max().orElseThrow();
         return Long.toString(max);
     }
@@ -48,16 +49,16 @@ public class Day22 extends AbstractDay {
     private long nextNumber(long seed) {
         long secretNumber = seed;
 
-        secretNumber = ((secretNumber * MULTIPLIER1) ^ secretNumber) % MODULO;
+        secretNumber = ((secretNumber << MULTIPLIER1_STEPS_LEFT) ^ secretNumber) % MODULO;
 
-        secretNumber = ((secretNumber / DIVISOR) ^ secretNumber) % MODULO;
+        secretNumber = ((secretNumber >> DIVISOR_STEPS_RIGHT) ^ secretNumber) % MODULO;
 
-        secretNumber = ((secretNumber * MULTIPLIER2) ^ secretNumber) % MODULO;
+        secretNumber = ((secretNumber << MULTIPLIER2_STEPS_LEFT) ^ secretNumber) % MODULO;
 
         return secretNumber;
     }
 
-    private long generateNextNumber(long seed) {
+    private long generate2000thNumber(long seed) {
         long result = seed;
         for (int i = 0; i < STEP_COUNT; i++) {
             result = nextNumber(result);
