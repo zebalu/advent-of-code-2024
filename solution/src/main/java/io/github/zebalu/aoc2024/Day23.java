@@ -47,26 +47,32 @@ public class Day23 extends AbstractDay {
         return interconnectedTrios;
     }
 
-    private Set<Set<String>> findGroups() {
-        Set<Set<String>> groups = new HashSet<>();
+    private List<Set<String>> findGroups() {
+        Set<String> processed = new HashSet<>();
+        List<Set<String>> groups = new ArrayList<>();
         for (String firstNode : network.keySet()) {
-            Set<String> checked = new HashSet<>();
-            Set<String> passed = new HashSet<>();
-            Queue<String> queue = new ArrayDeque<>();
-            queue.add(firstNode);
+            Set<Set<String>> seen = new HashSet<>();
+            Queue<SequencedSet<String>> queue = new ArrayDeque<>();
+            queue.add(new LinkedHashSet<>(Set.of(firstNode)));
+            seen.add(queue.peek());
             while (!queue.isEmpty()) {
-                String node = queue.poll();
-                if (!checked.contains(node) && network.get(node).containsAll(passed)) {
-                    passed.add(node);
-                    checked.add(node);
-                    for (String next : network.get(node)) {
-                        if (!checked.contains(next)) {
+                SequencedSet<String> nodes = queue.poll();
+                boolean extended = false;
+                for (String connected : network.get(nodes.getLast())) {
+                    if(!processed.contains(connected) && network.get(connected).containsAll(nodes)) {
+                        SequencedSet<String> next = new LinkedHashSet<>(nodes);
+                        next.add(connected);
+                        if(seen.add(next)) {
                             queue.add(next);
+                            extended = true;
                         }
                     }
                 }
+                if(!extended && nodes.size()>1) {
+                    groups.add(nodes);
+                }
             }
-            groups.add(passed);
+            processed.add(firstNode);
         }
         return groups;
     }
