@@ -70,7 +70,7 @@ public class Day23 extends AbstractDay {
         return groups;
     }
 
-    public boolean oneComputerStartsWithT(Set<String> computers) {
+    public boolean anyComputerStartsWithT(Set<String> computers) {
         for(String computer : computers) {
             if(computer.startsWith("t")) {
                 return true;
@@ -81,15 +81,13 @@ public class Day23 extends AbstractDay {
 
     @Override
     public String part1() {
-        Set<Set<String>> interconnectedTrios = interconnectedTrios();
-        List<Set<String>> tContainers = interconnectedTrios.stream().filter(this::oneComputerStartsWithT).toList();
-        return ""+tContainers.size();
+        long interconnectedTriosContainingT = interconnectedTrios().stream().filter(this::anyComputerStartsWithT).count();
+        return Long.toString(interconnectedTriosContainingT);
     }
 
     @Override
     public String part2() {
-        Set<Set<String>> groups = findGroups();
-        Set<String> largest = groups.stream().max(Comparator.comparingInt(Set::size)).orElseThrow();
+        Set<String> largest = findGroups().stream().max(Comparator.comparingInt(Set::size)).orElseThrow();
         return largest.stream().sorted().collect(Collectors.joining(","));
     }
 
