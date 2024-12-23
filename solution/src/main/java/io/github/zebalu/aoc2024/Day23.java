@@ -24,7 +24,7 @@ public class Day23 extends AbstractDay {
 
     @Override
     public String part1() {
-        long interconnectedTriosContainingT = interconnectedTrios().stream().filter(this::anyComputerStartsWithT).count();
+        long interconnectedTriosContainingT = interconnectedTriosWithStartingT().size();
         return Long.toString(interconnectedTriosContainingT);
     }
 
@@ -38,9 +38,9 @@ public class Day23 extends AbstractDay {
         network.computeIfAbsent(from, _ -> new HashSet<>()).add(to);
     }
 
-    private Set<Set<String>> interconnectedTrios() {
+    private Set<Set<String>> interconnectedTriosWithStartingT() {
         Set<Set<String>> interconnectedTrios = new HashSet<>();
-        for (String firstNode : network.keySet()) {
+        network.keySet().stream().filter(s->s.startsWith("t")).forEach(firstNode -> {
             Set<String> connections = network.get(firstNode);
             for (String secondNode : connections) {
                 if (!secondNode.equals(firstNode)) {
@@ -54,7 +54,7 @@ public class Day23 extends AbstractDay {
                     }
                 }
             }
-        }
+        });
         return interconnectedTrios;
     }
 
@@ -80,15 +80,6 @@ public class Day23 extends AbstractDay {
             groups.add(passed);
         }
         return groups;
-    }
-
-    private boolean anyComputerStartsWithT(Set<String> computers) {
-        for (String computer : computers) {
-            if (computer.startsWith("t")) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public static void main(String[] args) {
