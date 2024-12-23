@@ -49,9 +49,9 @@ public class Day23 extends AbstractDay {
 
     private Set<Set<String>> findGroups() {
         Set<Set<String>> groups = new HashSet<>();
+        Set<String> checked = new HashSet<>();
         for (String firstNode : network.keySet()) {
             Set<String> passed = new HashSet<>();
-            Set<String> checked = new HashSet<>();
             Queue<String> queue = new ArrayDeque<>();
             queue.add(firstNode);
             while (!queue.isEmpty()) {
