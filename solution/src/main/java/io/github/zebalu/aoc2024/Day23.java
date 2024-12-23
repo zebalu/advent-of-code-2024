@@ -47,8 +47,8 @@ public class Day23 extends AbstractDay {
         return interconnectedTrios;
     }
 
-    private Set<Set<String>> findGroups() {
-        Set<Set<String>> groups = new HashSet<>();
+    private List<Set<String>> findGroups() {
+        List<Set<String>> groups = new ArrayList<>();
         Set<String> checked = new HashSet<>();
         for (String firstNode : network.keySet()) {
             Set<String> passed = new HashSet<>();
