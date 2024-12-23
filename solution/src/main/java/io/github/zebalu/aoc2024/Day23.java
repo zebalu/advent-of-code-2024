@@ -40,11 +40,10 @@ public class Day23 extends AbstractDay {
 
     private Set<Set<String>> interconnectedTriosWithStartingT() {
         Set<Set<String>> interconnectedTrios = new HashSet<>();
-        network.keySet().stream().filter(s -> s.startsWith("t")).forEach(firstNode -> {
-            network.get(firstNode).stream().filter(secondNode -> !secondNode.equals(firstNode)).forEach(secondNode -> {
-                network.get(secondNode).stream().filter(thirdNode -> !thirdNode.equals(firstNode) && network.get(thirdNode).contains(firstNode)).forEach(thirdNode -> interconnectedTrios.add(Set.of(firstNode, secondNode, thirdNode)));
-            });
-        });
+        network.keySet().stream().filter(s -> s.startsWith("t"))
+                .forEach(firstNode -> network.get(firstNode).stream().filter(secondNode -> !secondNode.equals(firstNode))
+                        .forEach(secondNode -> network.get(secondNode).stream().filter(thirdNode -> !thirdNode.equals(firstNode) && network.get(thirdNode).contains(firstNode))
+                                .forEach(thirdNode -> interconnectedTrios.add(Set.of(firstNode, secondNode, thirdNode)))));
         return interconnectedTrios;
     }
 
