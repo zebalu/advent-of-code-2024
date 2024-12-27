@@ -334,7 +334,7 @@ public class Day24 extends AbstractDay {
     ///
     /// C---------|
     ///           |-XOR-> (SUM) // finalSum
-    ///(A XOR B)-|
+    /// (A XOR B)-|
     ///
     /// A-|
     ///   |-AND-> (A AND B) // basicCarry
@@ -342,11 +342,11 @@ public class Day24 extends AbstractDay {
     ///
     /// C---------|
     ///           |-AND->((A XOR B) AND C) // carryForward1
-    ///(A XOR B)-|
+    /// (A XOR B)-|
     ///
-    ///((A XOR B) AND C)-|
+    /// ((A XOR B) AND C)-|
     ///                   |-OR->((((A XOR B) XOR C)) OR (A AND B)) // finalCarry
-    ///(A AND B)---------|
+    /// (A AND B)---------|
     ///```
     ///
     /// [Original Idea](https://github.com/xhyrom/aoc/blob/main/2024/24/part_2.py)
