@@ -258,7 +258,6 @@ public class Day24 extends AbstractDay {
                 }
             }
             if (!failed) {
-                System.out.println(actual.swaps);
                 return actual.swaps;
             }
         }
