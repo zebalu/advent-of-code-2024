@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 public class Day24 extends AbstractDay {
     private static final Pattern BIT_PATTERN = Pattern.compile("[xyz]\\d+");
-    private static final Comparator<Map.Entry<String, Integer>> KEY_COMPARATOR = Comparator.comparing((Map.Entry<String, Integer> e) -> e.getKey()).reversed();
+    private static final Comparator<Map.Entry<String, Integer>> KEY_COMPARATOR = Map.Entry.<String,Integer>comparingByKey().reversed();
     private final Map<String, Integer> values = new HashMap<>();
     private final List<Rule> rules;
     private final Map<Character, List<String>> bitMap = new HashMap<>();
@@ -96,24 +96,25 @@ public class Day24 extends AbstractDay {
     }
 
     private String execute(Map<String, Integer> copyOfValues, List<Rule> rules) {
-        Queue<Rule> toDo = new ArrayDeque<>(rules);
-        Set<Rule> seen = new HashSet<>();
-        boolean loop = false;
-        while (!toDo.isEmpty() && !loop) {
-            Rule next = toDo.poll();
-            loop = seen.contains(next);
-            if (next.canBecalcualted(copyOfValues)) {
-                next.calculate(copyOfValues);
-                seen.clear();
-            } else {
-                toDo.add(next);
-                seen.add(next);
+        boolean changed = true;
+        List<Rule> copy = new LinkedList<>(rules);
+        while (!copy.isEmpty() && changed) {
+            changed = false;
+            Iterator<Rule> it = copy.iterator();
+            while (it.hasNext()) {
+                Rule next = it.next();
+                if (next.canBecalcualted(copyOfValues)) {
+                    next.calculate(copyOfValues);
+                    it.remove();
+                    changed = true;
+                }
             }
         }
-        if (loop) {
-            return "1".repeat(64);
+        if (!copy.isEmpty()) {
+            return "1".repeat(63);
+        } else {
+            return copyOfValues.entrySet().stream().filter(e -> e.getKey().startsWith("z")).sorted(KEY_COMPARATOR).map(Map.Entry::getValue).map(i -> Integer.toString(i)).collect(Collectors.joining(""));
         }
-        return copyOfValues.entrySet().stream().filter(e -> e.getKey().startsWith("z")).sorted(KEY_COMPARATOR).map(Map.Entry::getValue).map(i -> Integer.toString(i)).collect(Collectors.joining(""));
     }
 
     private record Rule(String first, String second, String result, IntBinaryOperator operator) {
@@ -123,7 +124,7 @@ public class Day24 extends AbstractDay {
         private static final IntBinaryOperator XOR = (a, b) -> a != b ? 1 : 0;
 
         boolean canBecalcualted(Map<String, Integer> values) {
-            return values.containsKey(this.first) && values.containsKey(this.second);
+            return values.containsKey(this.first) && values.containsKey(this.second) && !values.containsKey(this.result);
         }
 
         void calculate(Map<String, Integer> values) {
@@ -148,6 +149,20 @@ public class Day24 extends AbstractDay {
             } else {
                 throw new IllegalArgumentException("Unknown wire: " + from + "; (valids: " + wires() + ")");
             }
+        }
+
+        boolean isValid() {
+            if (first.startsWith("z") || second.startsWith("z") || result.startsWith("x") || result.startsWith("y")) {
+                return false;
+            }
+            if ((first.startsWith("x") && !second.startsWith("y")) || (first.startsWith("y") && !second.startsWith("x")) ||
+                    (second.startsWith("y") && !first.startsWith("x")) || (second.startsWith("x") && !first.startsWith("y"))) {
+                return false;
+            }
+            if (operator == OR && (first.startsWith("x") || second.startsWith("y") || first.startsWith("y") || second.startsWith("x"))) {
+                return false;
+            }
+            return true;
         }
 
         @Override
@@ -193,12 +208,19 @@ public class Day24 extends AbstractDay {
                 for (var aW : a.wires()) {
                     for (var bW : b.wires()) {
                         if (!aW.equals(bW)) {
-                            result.add(new Swap(a, b, a.swap(aW, bW), b.swap(bW, aW), Set.of(aW, bW)));
+                            Swap swapped = new Swap(a, b, a.swap(aW, bW), b.swap(bW, aW), Set.of(aW, bW));
+                            if (swapped.isValid()) {
+                                result.add(swapped);
+                            }
                         }
                     }
                 }
             }
             return result;
+        }
+
+        private boolean isValid() {
+            return aS.isValid() && bS.isValid() && swapped.size() == 2;
         }
     }
 
@@ -222,12 +244,11 @@ public class Day24 extends AbstractDay {
                             swapsCopy.addAll(swap.swapped);
                             if (swapsCopy.size() == actual.swaps.size() + 2) {
                                 List<Rule> rulesCopy = new ArrayList<>(actual.rules);
-                                rulesCopy.remove(swap.a);
-                                rulesCopy.remove(swap.b);
-                                rulesCopy.add(swap.aS);
-                                rulesCopy.add(swap.bS);
+                                rulesCopy.replaceAll(r -> r == swap.a ? swap.aS : r == swap.b ? swap.bS : r);
                                 if (check(rulesCopy, i)) {
-                                    queue.add(new State(rulesCopy, swapsCopy, actualTrusted, i));
+                                    Set<Rule> trustCopy = new HashSet<>(actualTrusted);
+                                    trustCopy.addAll(findContributors(bitMap.get('z').get(i), rulesCopy));
+                                    queue.add(new State(rulesCopy, swapsCopy, trustCopy, i + 1));
                                 }
                             }
                         }
@@ -237,6 +258,7 @@ public class Day24 extends AbstractDay {
                 }
             }
             if (!failed) {
+                System.out.println(actual.swaps);
                 return actual.swaps;
             }
         }
@@ -269,8 +291,6 @@ public class Day24 extends AbstractDay {
     }
 
     private boolean check(long x, long y, long z, List<Rule> rules, long bitMask) {
-        //System.out.println(x+"\t"+y+"\t"+bitMask+"\t"+Long.toBinaryString(bitMask));
-        //System.out.println(Long.toBinaryString(x)+"\t"+Long.toBinaryString(y)+"\t"+Long.toBinaryString(z));
         Map<String, Integer> values = new HashMap<>();
         long xCurrent = x;
         long yCurrent = y;
@@ -284,7 +304,6 @@ public class Day24 extends AbstractDay {
         if (executed.length() > outputLength) {
             return false;
         }
-        // System.out.println(executed+"\t"+Long.parseLong(executed, 2)+"\t"+(Long.parseLong(executed, 2) & bitMask)+"\t"+z);
         long result = Long.parseLong(executed, 2) & bitMask;
 
         return (z & bitMask) == result;
@@ -395,6 +414,8 @@ public class Day24 extends AbstractDay {
         Day24 day24 = new Day24(input);
         System.out.println(day24.part1());
         System.out.println(day24.part2());
-        //System.out.println(day24.part2_2());
+        if (args.length > 0 && args[0].equals("--brute-force")) {
+            System.out.println(day24.part2_2());
+        }
     }
 }
