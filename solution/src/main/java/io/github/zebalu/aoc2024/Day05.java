@@ -1,5 +1,7 @@
 package io.github.zebalu.aoc2024;
 
+import io.github.zebalu.aoc2024.utils.IOUtil;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -7,7 +9,10 @@ public class Day05 extends AbstractDay {
     private final List<Rule> rules = new ArrayList<>();
     private final List<PrintQueue> printQueues = new ArrayList<>();
     public Day05() {
-        super("Print Queue", 5);
+        this(IOUtil.readInput(5));
+    }
+    public Day05(String input) {
+        super(input,"Print Queue", 5);
         boolean splitFound = false;
         var allLines = INPUT.lines().toList();
         for (var line : allLines) {

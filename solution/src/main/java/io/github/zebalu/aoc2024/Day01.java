@@ -2,7 +2,9 @@ package io.github.zebalu.aoc2024;
 
 import io.github.zebalu.aoc2024.utils.IOUtil;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,7 +18,11 @@ public class Day01 extends AbstractDay {
 
     public Day01(String input) {
         super(input, "Historian Hysteria", 1);
-        var lines = INPUT.lines().toList();
+        List<String> lines = new ArrayList<>();
+        for(var line: INPUT.split("\n")) {
+            lines.add(line.trim());
+        }
+        //var lines = INPUT.lines().toList();
         list1 = new int[lines.size()];
         list2 = new int[lines.size()];
         Pattern pattern = Pattern.compile("(\\d+)\\W+(\\d+)");

@@ -15,7 +15,7 @@ public class Day12 extends AbstractDay {
         this(IOUtil.readInput(12));
     }
 
-    Day12(String input) {
+    public Day12(String input) {
         super(input, "Garden Groups", 12);
         data = IOUtil.readCharGrid(INPUT);
         height = data.length;
